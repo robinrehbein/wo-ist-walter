@@ -1,0 +1,13 @@
+# Android / Gradle
+android/build/
+android/.gradle/
+android/.kotlin/
+android/**/build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+
+# Release-APK fuers Testen bewusst einchecken
+!dist/
+!dist/wuselburg-debug.apk

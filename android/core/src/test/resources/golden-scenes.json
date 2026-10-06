@@ -1,0 +1,896 @@
+{
+ "fips1": {
+  "types": [
+   "houses",
+   "houses",
+   "park",
+   "houses",
+   "market",
+   "park",
+   "plaza",
+   "houses",
+   "houses",
+   "houses",
+   "houses",
+   "houses"
+  ],
+  "crumbs": 0,
+  "total": 272,
+  "counts": {
+   "cat": 19,
+   "person": 180,
+   "dog": 23,
+   "tree": 36,
+   "fox:NO_SCARF": 8,
+   "stall": 5,
+   "fox:FIPS": 1
+  },
+  "steps": [
+   {
+    "title": "Finde Fips!",
+    "sub": "Fuchs mit türkisem Schal, gelben Punkten und weißer Schwanzspitze",
+    "hit": {
+     "circle": {
+      "x": 821.6951984958723,
+      "y": 879.258175953757,
+      "r": 30
+     }
+    },
+    "center": {
+     "x": 821.6951984958723,
+     "y": 879.258175953757
+    },
+    "onFound": null,
+    "epilogue": null
+   }
+  ],
+  "first10": [
+   {
+    "x": 2145.445879548788,
+    "y": 14.704301718622446,
+    "scale": 0.9606779167428613,
+    "flip": true,
+    "kind": "cat",
+    "color": "#222"
+   },
+   {
+    "x": 1610.0946950558573,
+    "y": 17.372008549049497,
+    "scale": 0.955907939048484,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#4a7fd6",
+    "skin": "#f6d2b0",
+    "pants": "#5b4a3b",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1261.7086263727397,
+    "y": 23.6332797575742,
+    "scale": 1.0923232645727694,
+    "flip": false,
+    "kind": "cat",
+    "color": "#ccc"
+   },
+   {
+    "x": 626.4407305177301,
+    "y": 31.356970882043242,
+    "scale": 1.064623159961775,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#5ec2c9",
+    "skin": "#b97a52",
+    "pants": "#5b4a3b",
+    "hair": "#2d2118",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": "#a56bd6"
+   },
+   {
+    "x": 377.68809869512916,
+    "y": 39.65207225456834,
+    "scale": 0.9827019860036672,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#f6d2b0",
+    "pants": "#3b4a6b",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#a56bd6",
+    "balloon": null
+   },
+   {
+    "x": 790.3465513251722,
+    "y": 43.58897911757231,
+    "scale": 0.9810778611339629,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#ff9f55",
+    "skin": "#e3a97b",
+    "pants": "#3b4a6b",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 139.06411863677204,
+    "y": 46.15445712208748,
+    "scale": 0.978426435450092,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#b97a52",
+    "pants": "#444",
+    "hair": "#2d2118",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 692.4890185128897,
+    "y": 53.58856534399092,
+    "scale": 1.0816035061143339,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#ff9f55",
+    "skin": "#8a5a3b",
+    "pants": "#7a5c8a",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#f2b84b",
+    "balloon": null
+   },
+   {
+    "x": 433.45671097561717,
+    "y": 53.67721112817526,
+    "scale": 1.0066886717453598,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#f2b84b",
+    "skin": "#b97a52",
+    "pants": "#7a5c8a",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1119.2867976445705,
+    "y": 55.257183380424976,
+    "scale": 1.0335146761033684,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#f2b84b",
+    "skin": "#fde0c8",
+    "pants": "#444",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   }
+  ],
+  "last3": [
+   {
+    "x": 1579.9384070038795,
+    "y": 1513.194557286799,
+    "scale": 0.95695039331913,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#b97a52",
+    "pants": "#7a5c8a",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#e05a5a",
+    "balloon": null
+   },
+   {
+    "x": 1103.4558605961502,
+    "y": 1518.8263273835182,
+    "scale": 0.9572324394714088,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#4a7fd6",
+    "skin": "#e3a97b",
+    "pants": "#3b4a6b",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 544.1353691834956,
+    "y": 1524.8175455406308,
+    "scale": 0.9636302509810776,
+    "flip": false,
+    "kind": "dog",
+    "color": "#a0703f"
+   }
+  ]
+ },
+ "fips2": {
+  "types": [
+   "houses",
+   "houses",
+   "houses",
+   "houses",
+   "houses",
+   "plaza",
+   "houses",
+   "houses",
+   "market",
+   "houses",
+   "park",
+   "park"
+  ],
+  "crumbs": 0,
+  "total": 422,
+  "counts": {
+   "person": 287,
+   "cat": 23,
+   "dog": 44,
+   "fox:RED_SCARF": 9,
+   "fox:PLAIN_SCARF": 8,
+   "fox:NO_SCARF": 9,
+   "fox:FIPS": 1,
+   "tree": 36,
+   "stall": 5
+  },
+  "steps": [
+   {
+    "title": "Finde Fips!",
+    "sub": "Fuchs mit türkisem Schal, gelben Punkten und weißer Schwanzspitze",
+    "hit": {
+     "circle": {
+      "x": 416,
+      "y": 393,
+      "r": 30
+     }
+    },
+    "center": {
+     "x": 416,
+     "y": 393
+    },
+    "onFound": null,
+    "epilogue": null
+   }
+  ],
+  "first10": [
+   {
+    "x": 725.0619215015322,
+    "y": 17.641555584967136,
+    "scale": 0.9035746175795794,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#7bc47f",
+    "skin": "#8a5a3b",
+    "pants": "#5b4a3b",
+    "hair": null,
+    "hat": "BEANIE",
+    "hatColor": "#7bc47f",
+    "balloon": null
+   },
+   {
+    "x": 1735.213912827894,
+    "y": 19.401727741584182,
+    "scale": 1.0293137381318958,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#5ec2c9",
+    "skin": "#8a5a3b",
+    "pants": "#444",
+    "hair": null,
+    "hat": "BEANIE",
+    "hatColor": "#a56bd6",
+    "balloon": null
+   },
+   {
+    "x": 486.003091333434,
+    "y": 20.67950918339193,
+    "scale": 1.03629348622635,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#5ec2c9",
+    "skin": "#b97a52",
+    "pants": "#444",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1087.596239283681,
+    "y": 21.335013573989272,
+    "scale": 1.0818181479815394,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#d9d9d9",
+    "skin": "#8a5a3b",
+    "pants": "#444",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#e05a5a",
+    "balloon": null
+   },
+   {
+    "x": 1784.9891905374825,
+    "y": 22.28933021426201,
+    "scale": 0.9067180903628469,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#d9d9d9",
+    "skin": "#f6d2b0",
+    "pants": "#444",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1023.0491573344916,
+    "y": 22.36003850772977,
+    "scale": 0.9842263761907817,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#fde0c8",
+    "pants": "#444",
+    "hair": "#b5472b",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 552.8563967999071,
+    "y": 22.972148075699806,
+    "scale": 1.089579808153212,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#7bc47f",
+    "skin": "#8a5a3b",
+    "pants": "#5b4a3b",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 85.48780625499785,
+    "y": 24.614561265334487,
+    "scale": 1.0675199768971653,
+    "flip": true,
+    "kind": "cat",
+    "color": "#d98c3f"
+   },
+   {
+    "x": 2012.2746166381985,
+    "y": 25.070449240505695,
+    "scale": 0.9398662720806897,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#8a5a3b",
+    "pants": "#3b4a6b",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 292.6056681908667,
+    "y": 26.12663009390235,
+    "scale": 1.04728040760383,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#f6d2b0",
+    "pants": "#2f5d62",
+    "hair": "#b5472b",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   }
+  ],
+  "last3": [
+   {
+    "x": 195.17973416484892,
+    "y": 1518.7264736201614,
+    "scale": 1.0652649700641632,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#7bc47f",
+    "skin": "#f6d2b0",
+    "pants": "#2f5d62",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 102.79848029091954,
+    "y": 1519.1183231510222,
+    "scale": 0.9985816835425795,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#f6d2b0",
+    "pants": "#2f5d62",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#e05a5a",
+    "balloon": null
+   },
+   {
+    "x": 1513.6024896241724,
+    "y": 1522.787940023467,
+    "scale": 1.0139060564339162,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#d9d9d9",
+    "skin": "#b97a52",
+    "pants": "#5b4a3b",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   }
+  ]
+ },
+ "fips3": {
+  "types": [
+   "houses",
+   "plaza",
+   "houses",
+   "market",
+   "houses",
+   "houses",
+   "houses",
+   "park",
+   "houses",
+   "park",
+   "houses",
+   "houses"
+  ],
+  "crumbs": 0,
+  "total": 602,
+  "counts": {
+   "person": 417,
+   "dog": 52,
+   "cat": 35,
+   "fox:GREY": 11,
+   "fox:RED_SCARF": 11,
+   "fox:PLAIN_SCARF": 11,
+   "fox:NO_TIP": 11,
+   "tree": 36,
+   "stall": 5,
+   "fox:NO_SCARF": 12,
+   "fox:FIPS": 1
+  },
+  "steps": [
+   {
+    "title": "Finde Fips!",
+    "sub": "Fuchs mit türkisem Schal, gelben Punkten und weißer Schwanzspitze",
+    "hit": {
+     "circle": {
+      "x": 210,
+      "y": 393,
+      "r": 30
+     }
+    },
+    "center": {
+     "x": 210,
+     "y": 393
+    },
+    "onFound": null,
+    "epilogue": null
+   }
+  ],
+  "first10": [
+   {
+    "x": 2158.917279817164,
+    "y": 14.512951754033566,
+    "scale": 1.022285914979875,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#fde0c8",
+    "pants": "#5b4a3b",
+    "hair": null,
+    "hat": "CAP",
+    "hatColor": "#7bc47f",
+    "balloon": null
+   },
+   {
+    "x": 1903.90236232616,
+    "y": 15.355390774086118,
+    "scale": 1.0888018685858696,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#ef8fb4",
+    "skin": "#b97a52",
+    "pants": "#3b4a6b",
+    "hair": null,
+    "hat": "CAP",
+    "hatColor": "#ef8fb4",
+    "balloon": null
+   },
+   {
+    "x": 1100.8950802497566,
+    "y": 15.835400257259607,
+    "scale": 1.058772468054667,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#5ec2c9",
+    "skin": "#e3a97b",
+    "pants": "#2f5d62",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 548.1685610488057,
+    "y": 16.354344736784697,
+    "scale": 0.9899624546058476,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#4a7fd6",
+    "skin": "#b97a52",
+    "pants": "#5b4a3b",
+    "hair": "#2d2118",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 257.58925907313824,
+    "y": 16.78073843754828,
+    "scale": 1.0646796892397106,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#4a7fd6",
+    "skin": "#fde0c8",
+    "pants": "#7a5c8a",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 2011.6164243053645,
+    "y": 17.24270468391478,
+    "scale": 0.903996861493215,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#e3a97b",
+    "pants": "#2f5d62",
+    "hair": "#c9a24b",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 204.49356287904084,
+    "y": 18.344473334029317,
+    "scale": 0.9132367554586381,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#d9d9d9",
+    "skin": "#8a5a3b",
+    "pants": "#5b4a3b",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1746.5790039785206,
+    "y": 18.676785301417112,
+    "scale": 0.9114093615673483,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#e3a97b",
+    "pants": "#444",
+    "hair": null,
+    "hat": "BEANIE",
+    "hatColor": "#d9d9d9",
+    "balloon": null
+   },
+   {
+    "x": 375.28100899234414,
+    "y": 18.725340308621526,
+    "scale": 1.0371161709539591,
+    "flip": true,
+    "kind": "dog",
+    "color": "#a0703f"
+   },
+   {
+    "x": 1842.0523145794868,
+    "y": 19.124336970970035,
+    "scale": 1.0190344090107828,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#ef8fb4",
+    "skin": "#e3a97b",
+    "pants": "#7a5c8a",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#d9d9d9",
+    "balloon": null
+   }
+  ],
+  "last3": [
+   {
+    "x": 708.544762827456,
+    "y": 1523.6922010108829,
+    "scale": 1.0527363947592676,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#ef8fb4",
+    "skin": "#e3a97b",
+    "pants": "#3b4a6b",
+    "hair": null,
+    "hat": "CAP",
+    "hatColor": "#d9d9d9",
+    "balloon": null
+   },
+   {
+    "x": 366.81724528968334,
+    "y": 1523.7934574019164,
+    "scale": 0.9554276438429952,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#7bc47f",
+    "skin": "#fde0c8",
+    "pants": "#2f5d62",
+    "hair": null,
+    "hat": "CAP",
+    "hatColor": "#ef8fb4",
+    "balloon": null
+   },
+   {
+    "x": 272.9909357111901,
+    "y": 1525.9526502937078,
+    "scale": 0.9385157314594835,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#a56bd6",
+    "skin": "#8a5a3b",
+    "pants": "#2f5d62",
+    "hair": "#2d2118",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   }
+  ]
+ },
+ "case1": {
+  "types": [
+   "houses",
+   "park",
+   "houses",
+   "plaza",
+   "houses",
+   "houses",
+   "houses",
+   "park",
+   "houses",
+   "market",
+   "houses",
+   "houses"
+  ],
+  "crumbs": 108,
+  "total": 425,
+  "counts": {
+   "person": 299,
+   "dog": 39,
+   "cat": 31,
+   "fox:RED_SCARF": 3,
+   "raccoon": 6,
+   "tree": 36,
+   "fox:NO_SCARF": 3,
+   "stall": 5,
+   "pigeon": 3
+  },
+  "steps": [
+   {
+    "title": "Finde die Bäckerei!",
+    "sub": "Dort fehlt der Geburtstagskuchen",
+    "hit": {
+     "rect": {
+      "x": 253,
+      "y": 1159,
+      "w": 134,
+      "h": 196
+     }
+    },
+    "center": {
+     "x": 320,
+     "y": 1280
+    },
+    "onFound": "Hier stand der Kuchen! Auf dem Boden liegen Krümel …",
+    "epilogue": null
+   },
+   {
+    "title": "Wer hat den Kuchen?",
+    "sub": "Folge der Krümelspur bis zum Dieb",
+    "hit": {
+     "circle": {
+      "x": 874.6862166072242,
+      "y": 34,
+      "r": 32
+     }
+    },
+    "center": {
+     "x": 874.6862166072242,
+     "y": 34
+    },
+    "onFound": null,
+    "epilogue": "Erwischt! Waschbär Rocky hatte großen Hunger – und hat den Kuchen mit allen Tauben der Stadt geteilt. Fast."
+   }
+  ],
+  "first10": [
+   {
+    "x": 1247.5852063819766,
+    "y": 18.171206353232265,
+    "scale": 0.9840551353525371,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#f2b84b",
+    "skin": "#fde0c8",
+    "pants": "#5b4a3b",
+    "hair": "#555",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 51.79828788153827,
+    "y": 19.601511107757688,
+    "scale": 1.0631099617574364,
+    "flip": false,
+    "kind": "dog",
+    "color": "#a0703f"
+   },
+   {
+    "x": 1630.6833745352924,
+    "y": 20.313136380165815,
+    "scale": 0.9126671342644841,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#4a7fd6",
+    "skin": "#fde0c8",
+    "pants": "#7a5c8a",
+    "hair": "#111",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1104.9885120391846,
+    "y": 23.543281737715006,
+    "scale": 1.005008431430906,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#f2b84b",
+    "skin": "#8a5a3b",
+    "pants": "#3b4a6b",
+    "hair": null,
+    "hat": "TOP",
+    "hatColor": "#4a7fd6",
+    "balloon": null
+   },
+   {
+    "x": 786.8203835394233,
+    "y": 25.412898767739534,
+    "scale": 1.0126903411466628,
+    "flip": false,
+    "kind": "dog",
+    "color": "#6b4a2b"
+   },
+   {
+    "x": 1583.4979841616005,
+    "y": 26.0042858235538,
+    "scale": 1.0167869837488979,
+    "flip": false,
+    "kind": "cat",
+    "color": "#ccc"
+   },
+   {
+    "x": 1478.4773007128388,
+    "y": 27.3068330232054,
+    "scale": 0.9339180292934179,
+    "flip": false,
+    "kind": "fox",
+    "style": "RED_SCARF"
+   },
+   {
+    "x": 478.1462127864361,
+    "y": 28.23240669257939,
+    "scale": 0.9753914154134691,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#7bc47f",
+    "skin": "#e3a97b",
+    "pants": "#444",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": "#d9d9d9"
+   },
+   {
+    "x": 1527.2276313900948,
+    "y": 30.30893363431096,
+    "scale": 1.0801877590827644,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#f2b84b",
+    "skin": "#f6d2b0",
+    "pants": "#3b4a6b",
+    "hair": "#c9a24b",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": "#f2b84b"
+   },
+   {
+    "x": 661.0835671275854,
+    "y": 30.497955441474915,
+    "scale": 1.096358151815366,
+    "flip": false,
+    "kind": "raccoon",
+    "hasCake": false
+   }
+  ],
+  "last3": [
+   {
+    "x": 510.11062374711037,
+    "y": 1519.23643033579,
+    "scale": 1.0728745885193347,
+    "flip": false,
+    "kind": "person",
+    "shirt": "#e05a5a",
+    "skin": "#8a5a3b",
+    "pants": "#3b4a6b",
+    "hair": "#b5472b",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 915.8577913250774,
+    "y": 1523.4768956508487,
+    "scale": 1.0620988758280874,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#d9d9d9",
+    "skin": "#b97a52",
+    "pants": "#5b4a3b",
+    "hair": "#2d2118",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   },
+   {
+    "x": 1278.650508403778,
+    "y": 1525.0540834516287,
+    "scale": 1.0627616165671498,
+    "flip": true,
+    "kind": "person",
+    "shirt": "#ef8fb4",
+    "skin": "#f6d2b0",
+    "pants": "#5b4a3b",
+    "hair": "#6b4423",
+    "hat": "NONE",
+    "hatColor": null,
+    "balloon": null
+   }
+  ]
+ }
+}

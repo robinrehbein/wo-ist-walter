@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wuselburg</string>
+
+    <!-- Menü -->
+    <string name="menu_title">Wuselburg</string>
+    <string name="menu_tagline">Wo steckt Fips? Such ihn im Gewimmel und löse die Fälle der Stadt!</string>
+    <string name="menu_hint">Tipp: Mit zwei Fingern zoomen, mit einem Finger verschieben.</string>
+    <string name="stars_description">%1$d von 3 Sternen</string>
+
+    <!-- Spiel -->
+    <string name="cd_menu">Zurück zum Menü</string>
+    <string name="cd_hint">Tipp</string>
+    <string name="cd_zoom_in">Hineinzoomen</string>
+    <string name="cd_zoom_out">Herauszoomen</string>
+    <string name="cd_loading">Wuselburg wird gebaut</string>
+
+    <!-- Karten -->
+    <string name="intro_start">Los geht’s!</string>
+    <string name="step_found_title">Gut gemacht!</string>
+    <string name="button_continue">Weiter</string>
+    <string name="pause_title">Pause</string>
+    <string name="pause_body">Möchtest du zurück zum Menü?</string>
+    <string name="button_resume">Weiterspielen</string>
+    <string name="button_menu">Menü</string>
+    <string name="button_retry">Nochmal</string>
+    <string name="button_next_level">Nächstes Level</string>
+    <string name="win_fips">Fips gefunden!</string>
+    <string name="win_case">Fall gelöst!</string>
+    <string name="epilogue_default">Super Spürnase!</string>
+    <string name="stats_line">Zeit %1$s · %2$s · %3$s</string>
+
+    <plurals name="misses">
+        <item quantity="one">%d Fehlversuch</item>
+        <item quantity="other">%d Fehlversuche</item>
+    </plurals>
+    <plurals name="hints">
+        <item quantity="one">%d Tipp</item>
+        <item quantity="other">%d Tipps</item>
+    </plurals>
+</resources>
