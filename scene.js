@@ -94,12 +94,17 @@ const FOXSTYLES = {
   grey:       { fur: '#9a9aa6', scarf: TEAL, dots: true, tip: true }
 };
 const FIPS = FOXSTYLES.fips;
-const OUTLINE = 'stroke="rgba(30,20,40,.32)" stroke-width=".7" stroke-linejoin="round"';
+// Stil: Papier-Optik (weiße Schnittkanten, Schlagschatten, Papierkörnung) oder klassisch (dunkler Umriss)
+const STYLE = { paper: true };
+const OL = () => STYLE.paper
+  ? 'stroke="#fffaf0" stroke-width="1.3" stroke-linejoin="round"'
+  : 'stroke="rgba(30,20,40,.32)" stroke-width=".7" stroke-linejoin="round"';
+const HOUSE_EDGE = () => STYLE.paper ? 'stroke="#fffaf0" stroke-width="1.6"' : 'stroke="rgba(30,20,40,.28)" stroke-width="1"';
 
 function fox(o) {
   const fur = o.fur;
   const belly = '#fff4e0';
-  let s = `<g ${OUTLINE}>`;
+  let s = `<g ${OL()}>`;
   s += `<ellipse cx="16" cy="-24" rx="6" ry="14" transform="rotate(32 16 -24)" fill="${fur}"/>`;
   if (o.tip !== false) s += `<ellipse cx="22.5" cy="-35.5" rx="3.6" ry="4.6" transform="rotate(32 22.5 -35.5)" fill="#fff"/>`;
   s += `<rect x="-8" y="-9" width="5" height="9" rx="2" fill="#6b3a1d"/><rect x="3" y="-9" width="5" height="9" rx="2" fill="#6b3a1d"/>`;
@@ -123,7 +128,7 @@ function fox(o) {
 
 function raccoon(cake) {
   const fur = '#8d8d99', dark = '#3a3a45';
-  let s = `<ellipse cx="0" cy="1" rx="12" ry="3" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}>`;
+  let s = `<ellipse cx="0" cy="1" rx="12" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>`;
   s += `<ellipse cx="16" cy="-22" rx="6" ry="14" transform="rotate(32 16 -22)" fill="${fur}"/>`;
   s += `<ellipse cx="13" cy="-17" rx="6" ry="2.4" transform="rotate(32 13 -17)" fill="${dark}" stroke="none"/>`;
   s += `<ellipse cx="18" cy="-27" rx="5.6" ry="2.4" transform="rotate(32 18 -27)" fill="${dark}" stroke="none"/>`;
@@ -179,7 +184,7 @@ function personSvg(d) {
   const headR = d.body === 'kid' ? 8.4 : 7.5;
   const legCol = d.bottom === 'pants' ? d.pants : d.skin;
   let s = `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(0,0,0,.13)"/>`;
-  s += `<g ${OUTLINE} transform="scale(${k})">`;
+  s += `<g ${OL()} transform="scale(${k})">`;
   if (d.bag === 'backpack') s += `<g transform="translate(0 ${oy})"><rect x="3" y="-34" width="9" height="16" rx="3" fill="${d.propColor}"/></g>`;
   if (sit) {
     // Beine nach vorne ausgestreckt
@@ -246,7 +251,7 @@ function makeDog(r) {
 }
 function dogSvg(d) {
   const c = d.color;
-  let s = `<ellipse cx="0" cy="1" rx="15" ry="3" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}>`;
+  let s = `<ellipse cx="0" cy="1" rx="15" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>`;
   if (d.breed === 'lab') {
     s += `<path d="M14,-14 Q22,-22 19,-26" stroke="${c}" stroke-width="3.5" stroke-linecap="round" fill="none"/>` +
       `<rect x="-12" y="-9" width="4" height="9" rx="2" fill="${c}"/><rect x="8" y="-9" width="4" height="9" rx="2" fill="${c}"/>` +
@@ -280,7 +285,7 @@ function makeCat(r) {
 }
 function catSvg(d) {
   const c = d.color;
-  let s = `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}>`;
+  let s = `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>`;
   if (d.pose === 'stand') {
     s += `<path d="M12,-10 Q24,-16 18,-30" stroke="${c}" stroke-width="3" stroke-linecap="round" fill="none"/>` +
       `<ellipse cx="0" cy="-10" rx="12" ry="7.5" fill="${c}"/><circle cx="-11" cy="-17" r="6" fill="${c}"/>` +
@@ -299,13 +304,13 @@ function catSvg(d) {
 }
 
 const pigeonSvg = () =>
-  `<ellipse cx="0" cy="1" rx="8" ry="2" fill="rgba(0,0,0,.12)"/><g ${OUTLINE}>` +
+  `<ellipse cx="0" cy="1" rx="8" ry="2" fill="rgba(0,0,0,.12)"/><g ${OL()}>` +
   `<ellipse cx="0" cy="-6" rx="7" ry="5" fill="#9aa0ad"/><circle cx="-6" cy="-10" r="3.2" fill="#7f8594"/>` +
   `<path d="M-9,-10 l-3,1 l3,1Z" fill="#e8a33c"/><path d="M5,-5 l8,2 l-8,2Z" fill="#7f8594"/>` +
   `<path d="M-2,0 v3 M2,0 v3" stroke="#e8a33c" stroke-width="1"/></g>`;
 
 const duckSvg = () =>
-  `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(255,255,255,.35)"/><g ${OUTLINE}>` +
+  `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(255,255,255,.35)"/><g ${OL()}>` +
   `<ellipse cx="0" cy="-5" rx="9" ry="5.5" fill="#ffffff"/><path d="M6,-7 Q12,-12 10,-3Z" fill="#eeeeee"/>` +
   `<circle cx="-7" cy="-11" r="4" fill="#2f8f46"/><path d="M-11,-11 l-5,1.5 l5,1.5Z" fill="#f2a22e"/>` +
   `<circle cx="-8" cy="-12" r=".8" fill="#111" stroke="none"/></g>`;
@@ -319,7 +324,7 @@ function makeTree(r) {
 }
 function treeSvg(d) {
   const c = d.color;
-  let s = `<ellipse cx="0" cy="2" rx="20" ry="5" fill="rgba(0,0,0,.14)"/><g ${OUTLINE}>`;
+  let s = `<ellipse cx="0" cy="2" rx="20" ry="5" fill="rgba(0,0,0,.14)"/><g ${OL()}>`;
   if (d.type === 'pine') {
     s += `<rect x="-3.5" y="-22" width="7" height="22" rx="2" fill="#7a4e2d"/>` +
       `<polygon points="-22,-18 0,-52 22,-18" fill="#2f7d4a"/><polygon points="-18,-42 0,-76 18,-42" fill="#3b9158"/><polygon points="-13,-66 0,-96 13,-66" fill="#48a566"/>`;
@@ -354,7 +359,7 @@ function stallSvg(d) {
     `<circle cx="-29" cy="-34" r="3" fill="#ff9fc2"/><circle cx="-23" cy="-35" r="3" fill="#ffd84a"/><circle cx="-5" cy="-34" r="3" fill="#ffffff"/><circle cx="1" cy="-35" r="3" fill="#c9a0ff"/><circle cx="19" cy="-34" r="3" fill="#e05a5a"/><circle cx="25" cy="-35" r="3" fill="#ff9fc2"/></g>`;
   if (d.goods === 'bread') goods = `<g stroke="none"><ellipse cx="-24" cy="-28" rx="7" ry="4" fill="#d79a4a"/><ellipse cx="-8" cy="-28" rx="7" ry="4" fill="#c98636"/><ellipse cx="8" cy="-28" rx="7" ry="4" fill="#d79a4a"/><ellipse cx="25" cy="-28" rx="7" ry="4" fill="#c98636"/></g>`;
   if (d.goods === 'fish') goods = `<g stroke="none" fill="#9fb4c7"><ellipse cx="-22" cy="-28" rx="8" ry="3.6"/><path d="M-14,-28 l5,-4 v8Z"/><ellipse cx="2" cy="-27" rx="8" ry="3.6"/><path d="M10,-27 l5,-4 v8Z"/><ellipse cx="25" cy="-28" rx="6" ry="3"/></g>`;
-  return `<ellipse cx="0" cy="4" rx="52" ry="7" fill="rgba(0,0,0,.12)"/><g ${OUTLINE}>` +
+  return `<ellipse cx="0" cy="4" rx="52" ry="7" fill="rgba(0,0,0,.12)"/><g ${OL()}>` +
     `<rect x="-42" y="-44" width="5" height="44" fill="#8a6a45"/><rect x="37" y="-44" width="5" height="44" fill="#8a6a45"/>` +
     `<rect x="-42" y="-24" width="84" height="24" rx="3" fill="#c99a62"/>${stripes}` +
     `<path d="M-45,-44 q7.5,10 15,0 q7.5,10 15,0 q7.5,10 15,0 q7.5,10 15,0 q7.5,10 15,0 q7.5,10 15,0 Z" fill="${col}"/>${goods}</g>`;
@@ -385,7 +390,7 @@ function houseSvg(d, mood) {
   const top = by - h;
   const floors = h > 150 ? 2 : 1;
   const winFill = mood === 'evening' ? '#ffe9a8' : '#bfe6f5';
-  let s = `<g stroke="rgba(30,20,40,.28)" stroke-width="1" stroke-linejoin="round">`;
+  let s = `<g ${HOUSE_EDGE()} stroke-linejoin="round">`;
   s += `<rect x="${x}" y="${top}" width="${w}" height="${h}" fill="${d.wall}"/>`;
   s += `<rect x="${x + w - 16}" y="${top}" width="16" height="${h}" fill="rgba(0,0,0,.07)" stroke="none"/>`;
   if (d.roofType === 'flat') {
@@ -435,35 +440,35 @@ function propSvg(d, mood) {
     case 'lamp':
       s += `<ellipse cx="0" cy="1" rx="6" ry="2" fill="rgba(0,0,0,.15)"/>`;
       if (mood === 'evening') s += `<circle cx="0" cy="-60" r="22" fill="rgba(255,220,120,.30)"/>`;
-      s += `<g ${OUTLINE}><rect x="-2" y="-58" width="4" height="58" fill="#4a4f57"/><rect x="-5" y="-4" width="10" height="4" rx="1" fill="#3a3f47"/>` +
+      s += `<g ${OL()}><rect x="-2" y="-58" width="4" height="58" fill="#4a4f57"/><rect x="-5" y="-4" width="10" height="4" rx="1" fill="#3a3f47"/>` +
            `<path d="M-6,-58 h12 l-2,-8 h-8Z" fill="#3a3f47"/><circle cx="0" cy="-62" r="4" fill="${mood === 'evening' ? '#ffe9a8' : '#fff3c4'}"/></g>`;
       break;
     case 'bench':
-      s += `<ellipse cx="0" cy="1" rx="24" ry="3" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}>` +
+      s += `<ellipse cx="0" cy="1" rx="24" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>` +
            `<rect x="-20" y="-22" width="40" height="5" rx="1.5" fill="#a9733a"/><rect x="-20" y="-16" width="40" height="3" fill="#8a5a2a"/>` +
            `<rect x="-21" y="-12" width="42" height="5" rx="1.5" fill="#b9823f"/><rect x="-18" y="-7" width="3" height="7" fill="#4a4f57"/><rect x="15" y="-7" width="3" height="7" fill="#4a4f57"/></g>`;
       break;
     case 'bush':
-      s += `<ellipse cx="0" cy="2" rx="16" ry="4" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}><circle cx="-9" cy="-8" r="9" fill="${c}"/><circle cx="9" cy="-8" r="9" fill="${c}"/><circle cx="0" cy="-13" r="10" fill="${c}"/></g>` +
+      s += `<ellipse cx="0" cy="2" rx="16" ry="4" fill="rgba(0,0,0,.13)"/><g ${OL()}><circle cx="-9" cy="-8" r="9" fill="${c}"/><circle cx="9" cy="-8" r="9" fill="${c}"/><circle cx="0" cy="-13" r="10" fill="${c}"/></g>` +
            `<g fill="${c2}" stroke="none"><circle cx="-6" cy="-10" r="1.8"/><circle cx="5" cy="-14" r="1.8"/><circle cx="10" cy="-7" r="1.8"/></g>`;
       break;
     case 'blanket': {
       let cells = '';
       for (let i = 0; i < 4; i++) for (let j = 0; j < 3; j++) if ((i + j) % 2 === 0) cells += `<rect x="${-48 + i * 24}" y="${-40 + j * 14.7}" width="24" height="14.7" fill="${c2}" stroke="none"/>`;
-      s += `<g ${OUTLINE}><rect x="-48" y="-40" width="96" height="44" rx="3" fill="${c}"/>${cells}</g>`;
+      s += `<g ${OL()}><rect x="-48" y="-40" width="96" height="44" rx="3" fill="${c}"/>${cells}</g>`;
       break;
     }
     case 'basket':
-      s += `<g ${OUTLINE}><path d="M-9,-9 h18 l-2,9 h-14Z" fill="#b9792f"/><path d="M-7,-9 q7,-13 14,0" stroke="#8a5a2a" fill="none" stroke-width="1.4"/><rect x="-8" y="-11" width="16" height="3" rx="1" fill="#e05a5a"/></g>`;
+      s += `<g ${OL()}><path d="M-9,-9 h18 l-2,9 h-14Z" fill="#b9792f"/><path d="M-7,-9 q7,-13 14,0" stroke="#8a5a2a" fill="none" stroke-width="1.4"/><rect x="-8" y="-11" width="16" height="3" rx="1" fill="#e05a5a"/></g>`;
       break;
     case 'guitarcase':
-      s += `<g ${OUTLINE}><rect x="-14" y="-7" width="28" height="9" rx="3" fill="#3a3f47"/><rect x="-11" y="-5" width="22" height="5" rx="2" fill="#7a2f3a"/></g>` +
+      s += `<g ${OL()}><rect x="-14" y="-7" width="28" height="9" rx="3" fill="#3a3f47"/><rect x="-11" y="-5" width="22" height="5" rx="2" fill="#7a2f3a"/></g>` +
            `<g fill="#ffd84a" stroke="none"><circle cx="-5" cy="-2" r="1.6"/><circle cx="1" cy="-3" r="1.6"/><circle cx="6" cy="-2" r="1.6"/></g>`;
       break;
     case 'cart': {
       let can = '';
       for (let i = 0; i < 6; i++) can += `<path d="M${-34 + i * 11.3},-66 q${5.65},-16 ${11.3},0Z" fill="${i % 2 ? '#ffffff' : c}" stroke="none"/>`;
-      s += `<ellipse cx="0" cy="3" rx="34" ry="5" fill="rgba(0,0,0,.13)"/><g ${OUTLINE}>` +
+      s += `<ellipse cx="0" cy="3" rx="34" ry="5" fill="rgba(0,0,0,.13)"/><g ${OL()}>` +
            `<rect x="-1.5" y="-70" width="3" height="40" fill="#8a6a45"/>` + can +
            `<rect x="-28" y="-30" width="56" height="26" rx="4" fill="#fff4e0"/><rect x="-28" y="-30" width="56" height="8" rx="4" fill="${c}"/>` +
            `<circle cx="-18" cy="-2" r="5" fill="#555555"/><circle cx="18" cy="-2" r="5" fill="#555555"/>` +
@@ -474,20 +479,20 @@ function propSvg(d, mood) {
       s += `<path d="M0,0 Q${d.dx * 0.5},${d.dy + 8} ${d.dx},${d.dy}" stroke="#a02f3a" stroke-width="1.1" fill="none"/>`;
       break;
     case 'easel':
-      s += `<ellipse cx="0" cy="2" rx="14" ry="3" fill="rgba(0,0,0,.12)"/><g ${OUTLINE}><path d="M-10,0 L-3,-44 M10,0 L3,-44 M0,0 L0,-30" stroke="#8a6a45" stroke-width="2" fill="none"/>` +
+      s += `<ellipse cx="0" cy="2" rx="14" ry="3" fill="rgba(0,0,0,.12)"/><g ${OL()}><path d="M-10,0 L-3,-44 M10,0 L3,-44 M0,0 L0,-30" stroke="#8a6a45" stroke-width="2" fill="none"/>` +
            `<rect x="-13" y="-52" width="26" height="22" fill="#ffffff"/></g>` +
            `<g stroke="none"><circle cx="-6" cy="-45" r="3.4" fill="#e05a5a"/><circle cx="2" cy="-40" r="3.4" fill="#4a7fd6"/><circle cx="6" cy="-47" r="2.6" fill="#ffd84a"/><path d="M-10,-34 q8,-6 20,0" stroke="#7bc47f" stroke-width="2.2" fill="none"/></g>`;
       break;
     case 'ball':
-      s += `<ellipse cx="0" cy="1" rx="6" ry="2" fill="rgba(0,0,0,.18)"/><g ${OUTLINE}><circle cx="0" cy="${-d.lift - 5}" r="5" fill="#ffffff"/><path d="M-5,${-d.lift - 5} a5,5 0 0 1 10,0Z" fill="#e05a5a"/></g>`;
+      s += `<ellipse cx="0" cy="1" rx="6" ry="2" fill="rgba(0,0,0,.18)"/><g ${OL()}><circle cx="0" cy="${-d.lift - 5}" r="5" fill="#ffffff"/><path d="M-5,${-d.lift - 5} a5,5 0 0 1 10,0Z" fill="#e05a5a"/></g>`;
       break;
     case 'rod':
       s += `<path d="M0,0 L${d.dx * 0.45},-30" stroke="#6b4a2b" stroke-width="1.6" stroke-linecap="round" fill="none"/>` +
            `<path d="M${d.dx * 0.45},-30 L${d.dx},${d.dy}" stroke="#999999" stroke-width=".7" fill="none"/>` +
-           `<g ${OUTLINE}><circle cx="${d.dx}" cy="${d.dy}" r="2.6" fill="#e05a5a"/></g>`;
+           `<g ${OL()}><circle cx="${d.dx}" cy="${d.dy}" r="2.6" fill="#e05a5a"/></g>`;
       break;
     case 'bucket':
-      s += `<g ${OUTLINE}><path d="M-6,-9 h12 l-1.5,9 h-9Z" fill="#4a7fd6"/><path d="M-5,-9 q5,-7 10,0" stroke="#777777" fill="none"/></g><ellipse cx="0" cy="-9" rx="6" ry="1.6" fill="#9fd8f0" stroke="none"/>`;
+      s += `<g ${OL()}><path d="M-6,-9 h12 l-1.5,9 h-9Z" fill="#4a7fd6"/><path d="M-5,-9 q5,-7 10,0" stroke="#777777" fill="none"/></g><ellipse cx="0" cy="-9" rx="6" ry="1.6" fill="#9fd8f0" stroke="none"/>`;
       break;
     case 'notes':
       s += `<g fill="#333333" stroke="none"><ellipse cx="0" cy="0" rx="3" ry="2.2"/><rect x="2" y="-12" width="1.2" height="12"/><path d="M3.2,-12 q5,1 3,5"/>` +
@@ -825,25 +830,30 @@ function buildSceneData(cfg) {
 // ---------------------------------------------------------------- SVG aus Daten
 function sceneToSvg(data) {
   const { mood, blocks, crumbs, drawables } = data;
-  let bg = `<rect width="${W}" height="${H}" fill="#bfe3a4"/>`;
-  // Grasstruktur
-  for (const b of blocks) {
+  const paper = STYLE.paper;
+  const asphalt = '#dcd3c0';
+  let bg = `<rect width="${W}" height="${H}" fill="${paper ? asphalt : '#bfe3a4'}"/>`;
+  // Grasstruktur (klassisch; im Papier-Stil liegen die Blöcke als Schichten auf der Straße)
+  if (!paper) for (const b of blocks) {
     if (b.type === 'houses') bg += `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="14" fill="#d3e7b9"/>`;
   }
   // Straßen
-  const asphalt = '#dcd3c0';
-  for (let k = 0; k <= COLS; k++) {
+  if (!paper) for (let k = 0; k <= COLS; k++) {
     const x = k * (BW + ROAD);
     bg += `<rect x="${x}" y="0" width="${ROAD}" height="${H}" fill="${asphalt}"/>`;
     bg += `<line x1="${x + 6}" y1="0" x2="${x + 6}" y2="${H}" stroke="rgba(0,0,0,.07)" stroke-width="4"/><line x1="${x + ROAD - 6}" y1="0" x2="${x + ROAD - 6}" y2="${H}" stroke="rgba(0,0,0,.07)" stroke-width="4"/>`;
   }
-  for (let j = 0; j <= ROWS; j++) {
+  if (!paper) for (let j = 0; j <= ROWS; j++) {
     const y = j * (BH + ROAD);
     bg += `<rect x="0" y="${y}" width="${W}" height="${ROAD}" fill="${asphalt}"/>`;
     bg += `<line x1="0" y1="${y + 6}" x2="${W}" y2="${y + 6}" stroke="rgba(0,0,0,.07)" stroke-width="4"/><line x1="0" y1="${y + ROAD - 6}" x2="${W}" y2="${y + ROAD - 6}" stroke="rgba(0,0,0,.07)" stroke-width="4"/>`;
   }
-  for (let k = 0; k <= COLS; k++) for (let j = 0; j <= ROWS; j++) {
+  if (!paper) for (let k = 0; k <= COLS; k++) for (let j = 0; j <= ROWS; j++) {
     bg += `<rect x="${k * (BW + ROAD)}" y="${j * (BH + ROAD)}" width="${ROAD}" height="${ROAD}" fill="${asphalt}"/>`;
+  }
+  if (paper) {   // Randlinien der Straße wie gefaltetes Papier
+    for (let k = 0; k <= COLS; k++) bg += `<rect x="${k * (BW + ROAD)}" y="0" width="${ROAD}" height="${H}" fill="rgba(255,250,240,.28)"/>`;
+    for (let j = 0; j <= ROWS; j++) bg += `<rect x="0" y="${j * (BH + ROAD)}" width="${W}" height="${ROAD}" fill="rgba(255,250,240,.28)"/>`;
   }
   // Mittellinien
   for (let k = 0; k <= COLS; k++) bg += `<line x1="${k * (BW + ROAD) + ROAD / 2}" y1="0" x2="${k * (BW + ROAD) + ROAD / 2}" y2="${H}" stroke="#ffffff" stroke-width="3" stroke-dasharray="26 22" opacity=".7"/>`;
@@ -862,10 +872,12 @@ function sceneToSvg(data) {
   bg += `<g fill="#ffffff" opacity=".75">${zebra}</g>`;
 
   // Blöcke
+  let houseSvgs = '';
   for (const b of blocks) {
     const { x, y } = b;
+    if (paper) bg += `<rect x="${x + 3}" y="${y + 5}" width="${BW}" height="${BH}" rx="${b.type === 'park' ? 26 : 14}" fill="rgba(45,30,15,.30)"/>`;
     if (b.type === 'park') {
-      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="26" fill="#8fcf7a"/>`;
+      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="26" fill="#8fcf7a"${paper ? ' stroke="#fffaf0" stroke-width="2"' : ''}/>`;
       let tufts = '';
       for (const d of b.dots) if (d.shape === 'tuft') tufts += `M${f1(d.x)},${f1(d.y)} l-2,-5 M${f1(d.x)},${f1(d.y)} l0,-6 M${f1(d.x)},${f1(d.y)} l2,-5 `;
       bg += `<path d="${tufts}" stroke="#6fb85f" stroke-width="1.2" stroke-linecap="round" fill="none"/>`;
@@ -876,11 +888,11 @@ function sceneToSvg(data) {
       bg += `<ellipse cx="${f1(p.cx - 20)}" cy="${f1(p.cy + 4)}" rx="10" ry="5" fill="#5fae5b"/><circle cx="${f1(p.cx - 22)}" cy="${f1(p.cy + 2)}" r="2" fill="#ff9fc2"/>`;
       for (const d of b.dots) if (d.shape === 'circle') bg += `<circle cx="${f1(d.x)}" cy="${f1(d.y)}" r="${d.r}" fill="${d.color}"/>`;
     } else if (b.type === 'market') {
-      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#f0dcae"/>`;
+      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#f0dcae"${paper ? ' stroke="#fffaf0" stroke-width="2"' : ''}/>`;
       for (const d of b.dots) bg += `<circle cx="${f1(d.x)}" cy="${f1(d.y)}" r="${d.r}" fill="${d.color}"/>`;
     } else if (b.type === 'plaza') {
       const cx = x + BW / 2, cy = y + BH / 2;
-      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#e8e1d2"/>`;
+      bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#e8e1d2"${paper ? ' stroke="#fffaf0" stroke-width="2"' : ''}/>`;
       let tiles = '';
       for (let i = 1; i < 8; i++) tiles += `M${x + i * BW / 8},${y} v${BH} `;
       for (let j = 1; j < 7; j++) tiles += `M${x},${y + j * BH / 7} h${BW} `;
@@ -889,17 +901,23 @@ function sceneToSvg(data) {
             `<circle cx="${cx}" cy="${cy}" r="14" fill="#8cc9e0"/>` +
             `<path d="M${cx},${cy} q-18,-30 -30,-8 M${cx},${cy} q18,-30 30,-8 M${cx},${cy} q0,-38 0,-40" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9"/>`;
     } else {
+      if (paper) bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#d3e7b9" stroke="#fffaf0" stroke-width="2"/>`;
       bg += `<rect x="${x}" y="${y + BH - 78}" width="${BW}" height="78" rx="10" fill="#e6dfcf"/>`;
       let curb = '';
       for (let i = 0; i < 12; i++) curb += `M${x + 10 + i * 35},${y + BH - 78} v78 `;
       bg += `<path d="${curb}" stroke="rgba(0,0,0,.05)" stroke-width="1.5" fill="none"/>`;
-      for (const hd of b.houses) bg += houseSvg(hd, mood);
+      for (const hd of b.houses) houseSvgs += houseSvg(hd, mood);
     }
   }
   const cr = crumbs.map(c => `<circle cx="${f1(c.x)}" cy="${f1(c.y)}" r="${c.big ? 3.4 : 2.4}" fill="${c.big ? '#c98a2b' : '#e0a845'}"/>`).join('');
   const items = drawables.map(d => drawableSvg(d, mood)).join('');
   const tint = mood === 'evening' ? `<rect width="${W}" height="${H}" fill="rgba(255,140,60,.16)" pointer-events="none"/>` : '';
-  return `<g>${bg}</g><g>${cr}</g><g>${items}</g>${tint}`;
+  const sceneDefs = paper
+    ? `<defs><filter id="lift" x="-2%" y="-2%" width="104%" height="104%"><feDropShadow dx="1.8" dy="2.8" stdDeviation="1" flood-color="#2a1d10" flood-opacity=".34"/></filter>` +
+      `<pattern id="grain" width="384" height="384" patternUnits="userSpaceOnUse"><image href="paper-grain.png" width="384" height="384"/></pattern></defs>`
+    : '';
+  const grain = paper ? `<rect width="${W}" height="${H}" fill="url(#grain)" pointer-events="none"/>` : '';
+  return `${sceneDefs}<g>${bg}</g><g${paper ? ' filter="url(#lift)"' : ''}>${houseSvgs}</g><g>${cr}</g><g${paper ? ' filter="url(#lift)"' : ''}>${items}</g>${tint}${grain}`;
 }
 
 function buildScene(cfg) {
@@ -907,4 +925,4 @@ function buildScene(cfg) {
   return { data, svg: sceneToSvg(data), steps: data.steps };
 }
 
-if (typeof module !== 'undefined') module.exports = { LEVELS, buildSceneData, buildScene, sceneToSvg, fox, raccoon, FOXSTYLES, FIPS, W, H };
+if (typeof module !== 'undefined') module.exports = { STYLE, LEVELS, buildSceneData, buildScene, sceneToSvg, fox, raccoon, FOXSTYLES, FIPS, W, H };

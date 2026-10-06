@@ -173,3 +173,5 @@ h1 { margin: 4px 0 4px; font-size: 2.6rem; color: var(--teal-dark); letter-spaci
 @keyframes found { from { opacity: 0; transform: scale(.3); } to { opacity: 1; transform: none; } }
 .fx-hint { animation: hint 3.6s ease-in-out forwards; }
 @keyframes hint { 0% { opacity: 0; } 15%, 75% { opacity: 1; } 100% { opacity: 0; } }
+
+#style-toggle { margin-top: 18px; }

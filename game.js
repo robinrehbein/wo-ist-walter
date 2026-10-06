@@ -24,8 +24,21 @@ function saveStars(id, n) {
 }
 const starStr = n => [1, 2, 3].map(i => `<span class="${i <= n ? '' : 'off'}">★</span>`).join('');
 
+// ---------------------------------------------------------------- Stil (Papier / klassisch)
+const STYLE_KEY = 'wuselburg.style';
+function loadStyle() { try { STYLE.paper = localStorage.getItem(STYLE_KEY) !== 'classic'; } catch (e) { /* privater Modus */ } }
+function toggleStyle() {
+  STYLE.paper = !STYLE.paper;
+  try { localStorage.setItem(STYLE_KEY, STYLE.paper ? 'paper' : 'classic'); } catch (e) { /* privater Modus */ }
+  updateStyleButton();
+}
+function updateStyleButton() { $('style-toggle').textContent = STYLE.paper ? 'Stil: Papier ✂️ (tippen zum Wechseln)' : 'Stil: Klassisch (tippen zum Wechseln)'; }
+$('style-toggle').addEventListener('click', toggleStyle);
+loadStyle();
+
 // ---------------------------------------------------------------- Menü
 function renderMenu() {
+  updateStyleButton();
   const save = loadSave();
   $('menu-logo').innerHTML = fox(FIPS);
   $('level-list').innerHTML = LEVELS.map(l => `
