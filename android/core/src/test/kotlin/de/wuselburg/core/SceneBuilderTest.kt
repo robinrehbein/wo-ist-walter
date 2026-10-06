@@ -4,116 +4,108 @@ import kotlin.math.abs
 import kotlin.math.hypot
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-/** Compares the Kotlin scene generator with golden-scenes.json, dumped from game.js by dump-scenes.js. */
+/**
+ * Parity test: compares EVERYTHING SceneBuilder produces with golden-scenes.json, dumped from scene.js
+ * buildSceneData() by scratchpad dump-scenes.js (numbers rounded to 6 decimals, tolerance here 1e-6).
+ * Reports the first mismatch with a readable path such as `case1.drawables[17].props.shirt`.
+ */
 class SceneBuilderTest {
     private val golden = MiniJson(
         checkNotNull(javaClass.getResourceAsStream("/golden-scenes.json")).readBytes().decodeToString(),
     ).parse() as Map<*, *>
 
-    private fun level(id: String) = Levels.all.first { it.id == id }
-    private fun hex(s: String?): Int? = s?.let {
-        val h = it.removePrefix("#").let { v -> if (v.length == 3) v.map { c -> "$c$c" }.joinToString("") else v }
-        (0xFF000000L or h.toLong(16)).toInt()
-    }
+    private fun pt(x: Double, y: Double) = mapOf("x" to x, "y" to y)
 
-    private fun num(o: Any?) = (o as Number).toDouble()
-    private fun close(exp: Any?, act: Double, what: String) =
-        assertTrue(abs(num(exp) - act) < 1e-6, "$what: expected $exp, was $act")
+    private fun toTree(s: SceneData): Map<String, Any?> = mapOf(
+        "mood" to s.mood,
+        "blocks" to s.blocks.map { b ->
+            mapOf(
+                "col" to b.col, "row" to b.row, "x" to b.x, "y" to b.y, "w" to b.w, "h" to b.h,
+                "type" to b.type.name.lowercase(),
+                "houses" to b.houses.map { h ->
+                    mapOf(
+                        "x" to h.x, "baseY" to h.baseY, "w" to h.w, "h" to h.h, "wall" to h.wall, "roof" to h.roof,
+                        "roofType" to h.roofType, "chimney" to h.chimney, "shutters" to h.shutters, "plantBox" to h.plantBox,
+                        "shop" to h.shop, "door" to h.door, "shutterColor" to h.shutterColor, "curtains" to h.curtains,
+                        "bakery" to h.bakery,
+                    )
+                },
+                "pond" to b.pond?.let { mapOf("cx" to it.cx, "cy" to it.cy, "rx" to it.rx, "ry" to it.ry) },
+                "dots" to b.dots.map { mapOf("x" to it.x, "y" to it.y, "r" to it.r, "color" to it.color, "shape" to it.shape) },
+            )
+        },
+        "crumbs" to s.crumbs.map { mapOf("x" to it.x, "y" to it.y, "big" to it.big) },
+        "drawables" to s.drawables.map {
+            mapOf("kind" to it.kind, "x" to it.x, "y" to it.y, "scale" to it.scale, "flip" to it.flip, "z" to it.z, "props" to it.props)
+        },
+        "steps" to s.steps.map { st ->
+            mapOf(
+                "title" to st.title, "sub" to st.subtitle,
+                "hit" to when (val h = st.hit) {
+                    is Hit.Circle -> mapOf("type" to "circle", "x" to h.x, "y" to h.y, "r" to h.r)
+                    is Hit.Rect -> mapOf("type" to "rect", "x" to h.x, "y" to h.y, "w" to h.w, "h" to h.h)
+                },
+                "center" to pt(st.centerX, st.centerY), "onFound" to st.onFound, "epilogue" to st.epilogue,
+            )
+        },
+        "bakery" to s.bakery?.let {
+            mapOf(
+                "rect" to mapOf("x" to it.rect.x, "y" to it.rect.y, "w" to it.rect.w, "h" to it.rect.h),
+                "center" to pt(it.center.x, it.center.y), "door" to pt(it.door.x, it.door.y),
+            )
+        },
+    )
 
-    private fun kindKey(d: Drawable): String = when (d) {
-        is PersonD -> "person"; is DogD -> "dog"; is CatD -> "cat"; is PigeonD -> "pigeon"
-        is FoxD -> "fox:${d.style}"; is RaccoonD -> "raccoon"; is TreeD -> "tree"; is StallD -> "stall"
+    /** Returns a description of the first mismatch, or null if [exp] and [act] are equal (numbers within 1e-6). */
+    private fun diff(path: String, exp: Any?, act: Any?): String? {
+        when {
+            exp == null || act == null -> if (exp != act) return "$path: expected $exp, was $act"
+            exp is Map<*, *> -> {
+                if (act !is Map<*, *>) return "$path: expected object, was $act"
+                for (k in exp.keys) {
+                    if (!act.containsKey(k)) return "$path.$k: missing in Kotlin"
+                    diff("$path.$k", exp[k], act[k])?.let { return it }
+                }
+                for (k in act.keys) if (!exp.containsKey(k)) return "$path.$k: extra in Kotlin (value ${act[k]})"
+            }
+            exp is List<*> -> {
+                if (act !is List<*>) return "$path: expected array, was $act"
+                for (i in 0 until minOf(exp.size, act.size)) diff("$path[$i]", exp[i], act[i])?.let { return it }
+                if (exp.size != act.size) return "$path: expected ${exp.size} elements, was ${act.size}"
+            }
+            exp is Number -> {
+                if (act !is Number) return "$path: expected number $exp, was $act"
+                if (abs(exp.toDouble() - act.toDouble()) > 1e-6) return "$path: expected $exp, was $act"
+            }
+            else -> if (exp != act) return "$path: expected $exp, was $act"
+        }
+        return null
     }
 
     @Test
-    fun matchesGoldenFromGameJs() {
+    fun matchesGoldenFromSceneJs() {
         for (lv in Levels.all) {
             val g = golden[lv.id] as Map<*, *>
-            val scene = SceneBuilder.build(lv)
-            val tag = lv.id
-
-            assertEquals((g["types"] as List<*>).map { it.toString().uppercase() }, scene.blocks.map { it.type.name }, "$tag types")
-            assertEquals(num(g["crumbs"]).toInt(), scene.crumbs.size, "$tag crumbs")
-            assertEquals(num(g["total"]).toInt(), scene.drawables.size, "$tag total")
-            val counts = scene.drawables.groupingBy(::kindKey).eachCount()
-            val gc = (g["counts"] as Map<*, *>).entries.associate { it.key.toString() to num(it.value).toInt() }
-            assertEquals(gc, counts, "$tag counts")
-
-            val gs = g["steps"] as List<*>
-            assertEquals(gs.size, scene.steps.size, "$tag steps")
-            gs.zip(scene.steps).forEachIndexed { i, (e, st) ->
-                e as Map<*, *>
-                assertEquals(e["title"], st.title); assertEquals(e["sub"], st.subtitle)
-                assertEquals(e["onFound"], st.onFound); assertEquals(e["epilogue"], st.epilogue)
-                val c = e["center"] as Map<*, *>
-                close(c["x"], st.centerX, "$tag step$i cx"); close(c["y"], st.centerY, "$tag step$i cy")
-                val hit = e["hit"] as Map<*, *>
-                (hit["circle"] as Map<*, *>?)?.let {
-                    val h = st.hit as Hit.Circle
-                    close(it["x"], h.x, "cx"); close(it["y"], h.y, "cy"); close(it["r"], h.r, "r")
-                }
-                (hit["rect"] as Map<*, *>?)?.let {
-                    val h = st.hit as Hit.Rect
-                    close(it["x"], h.x, "rx"); close(it["y"], h.y, "ry"); close(it["w"], h.w, "rw"); close(it["h"], h.h, "rh")
-                }
-            }
-
-            val sample = (g["first10"] as List<*>) + (g["last3"] as List<*>)
-            val actual = scene.drawables.take(10) + scene.drawables.takeLast(3)
-            sample.zip(actual).forEachIndexed { i, (e, d) ->
-                e as Map<*, *>
-                val w = "$tag drawable#$i"
-                close(e["x"], d.x, "$w x"); close(e["y"], d.y, "$w y"); close(e["scale"], d.scale, "$w scale")
-                assertEquals(e["flip"], d.flip, "$w flip")
-                val k = e["kind"]
-                assertEquals(if (k == "fox") "fox:${e["style"]}" else k, kindKey(d), "$w kind")
-                when (d) {
-                    is PersonD -> {
-                        assertEquals(hex(e["shirt"] as String?), d.shirt, "$w shirt")
-                        assertEquals(hex(e["skin"] as String?), d.skin, "$w skin")
-                        assertEquals(hex(e["pants"] as String?), d.pants, "$w pants")
-                        assertEquals(e["hat"], d.hat.name, "$w hat")
-                        hex(e["hair"] as String?)?.let { assertEquals(it, d.hair, "$w hair") }
-                        hex(e["hatColor"] as String?)?.let { assertEquals(it, d.hatColor, "$w hatColor") }
-                        assertEquals(hex(e["balloon"] as String?) ?: 0, d.balloonColor, "$w balloon")
-                    }
-                    is DogD -> assertEquals(hex(e["color"] as String?), d.color, "$w dog")
-                    is CatD -> assertEquals(hex(e["color"] as String?), d.color, "$w cat")
-                    is TreeD -> assertEquals(hex(e["color"] as String?), d.color, "$w tree")
-                    is StallD -> assertEquals(hex(e["color"] as String?), d.color, "$w stall")
-                    is RaccoonD -> assertEquals(e["hasCake"], d.hasCake, "$w cake")
-                    else -> Unit
-                }
-            }
+            val msg = diff(lv.id, g, toTree(SceneBuilder.build(lv)))
+            assertTrue(msg == null, "Parity mismatch at $msg")
         }
     }
 
     @Test
-    fun deterministicAndSortedByY() {
+    fun deterministicAndSorted() {
         for (lv in Levels.all) {
             val a = SceneBuilder.build(lv)
             assertEquals(a, SceneBuilder.build(lv))
-            assertTrue(a.drawables.zipWithNext().all { (p, q) -> p.y <= q.y }, "${lv.id} sorted")
-        }
-    }
-
-    @Test
-    fun hiddenFipsOverlapsATree() {
-        for (lv in Levels.all.filter { it.kind == LevelKind.FIPS && it.hidden }) {
-            val s = SceneBuilder.build(lv)
-            val fips = s.drawables.filterIsInstance<FoxD>().single { it.style == FoxStyle.FIPS }
-            assertTrue(s.drawables.filterIsInstance<TreeD>().any { hypot(it.x - fips.x, it.y - 4 - fips.y) < lv.hideOffset + 1 })
+            assertTrue(a.drawables.zipWithNext().all { (p, q) -> (p.z ?: p.y) <= (q.z ?: q.y) }, "${lv.id} sorted")
         }
     }
 
     @Test
     fun thiefIsAtEndOfCrumbRoute() {
-        val s = SceneBuilder.build(level("case1"))
-        val thief = s.drawables.filterIsInstance<RaccoonD>().single { it.hasCake }
-        assertNotNull(s.crumbs.minByOrNull { hypot(it.x - thief.x, it.y - thief.y) })
+        val s = SceneBuilder.build(Levels.all.first { it.id == "case1" })
+        val thief = s.drawables.single { it.kind == "raccoon" && it.bool("hasCake") }
         assertTrue(s.crumbs.any { hypot(it.x - thief.x, it.y - thief.y) < 40 })
     }
 }

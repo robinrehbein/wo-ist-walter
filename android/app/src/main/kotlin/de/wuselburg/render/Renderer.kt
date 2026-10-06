@@ -2,26 +2,55 @@ package de.wuselburg.render
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.DashPathEffect
+import android.graphics.Path
 import android.graphics.Picture
-import androidx.compose.foundation.Canvas as ComposeCanvas
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
-import androidx.compose.ui.graphics.nativeCanvas
 import de.wuselburg.core.Block
 import de.wuselburg.core.BlockType
-import de.wuselburg.core.House
+import de.wuselburg.core.Drawable
 import de.wuselburg.core.Scene
 import de.wuselburg.core.WORLD_H
 import de.wuselburg.core.WORLD_W
 import de.wuselburg.core.WorldLayout
-import kotlin.math.min
 
-private val GROUND = rgb(0xbfe3a4)
-private val ROAD_COLOR = rgb(0xdcd3c0)
-private val ROAD_LINE = rgba(0xffffff, .7f)
-private val WHITE = rgb(0xffffff)
+/*
+ * Port of sceneToSvg() (scene.js): background (grass, roads, zebra, blocks + houses), crumbs, drawables in the
+ * given (already sorted) order, evening tint. Figures are drawn by Figures.kt (drawFigure), trees / stalls /
+ * props / houses by Decor.kt.
+ */
+
+private val C_GRASS = parseCssColor("#bfe3a4")
+private val C_HOUSE_GRASS = parseCssColor("#d3e7b9")
+private val C_ASPHALT = parseCssColor("#dcd3c0")
+private val C_CURB_LINE = parseCssColor("rgba(0,0,0,.07)")
+private val C_CENTER = parseCssColor("rgba(255,255,255,.7)")      // #fff, opacity .7
+private val C_ZEBRA = parseCssColor("rgba(255,255,255,.75)")      // #fff, opacity .75
+private val C_WHITE = parseCssColor("#ffffff")
+private val C_WHITE_80 = parseCssColor("rgba(255,255,255,.8)")    // ripples, opacity .8
+private val C_WHITE_70 = parseCssColor("rgba(255,255,255,.7)")
+private val C_WHITE_90 = parseCssColor("rgba(255,255,255,.9)")    // fountain spray, opacity .9
+private val C_PARK = parseCssColor("#8fcf7a")
+private val C_TUFT = parseCssColor("#6fb85f")
+private val C_SAND = parseCssColor("#e9e1c8")
+private val C_WATER = parseCssColor("#9fd8f0")
+private val C_LILY = parseCssColor("#5fae5b")
+private val C_LILY_FLOWER = parseCssColor("#ff9fc2")
+private val C_MARKET = parseCssColor("#f0dcae")
+private val C_PLAZA = parseCssColor("#e8e1d2")
+private val C_PLAZA_LINE = parseCssColor("rgba(0,0,0,.05)")
+private val C_BASIN = parseCssColor("#b9e3f2")
+private val C_FOUNTAIN = parseCssColor("#8cc9e0")
+private val C_SIDEWALK = parseCssColor("#e6dfcf")
+private val C_CRUMB_BIG = parseCssColor("#c98a2b")
+private val C_CRUMB = parseCssColor("#e0a845")
+private val C_EVENING = parseCssColor("rgba(255,140,60,.16)")
+
+private val ROAD = WorldLayout.ROAD.toFloat()
+private val BW = WorldLayout.BLOCK_W.toFloat()
+private val BH = WorldLayout.BLOCK_H.toFloat()
+private val COLS = WorldLayout.COLS
+private val ROWS = WorldLayout.ROWS
+private val W = WORLD_W.toFloat()
+private val H = WORLD_H.toFloat()
 
 /** Records the whole world (0..WORLD_W x 0..WORLD_H, world coordinates) ONCE per level. */
 fun recordScenePicture(scene: Scene): Picture {
@@ -45,149 +74,134 @@ fun renderSceneToBitmap(scene: Scene, widthPx: Int): Bitmap {
     return bitmap
 }
 
-/** Layer order of game.js: ground, roads, blocks (+houses), crumbs, then drawables in painter order. */
+/** Layers of sceneToSvg(): background, crumbs, drawables (painter order as given), evening tint. */
 internal fun drawScene(c: Canvas, scene: Scene) {
-    val pen = Pen.get()
-    c.drawColor(GROUND)
-    drawRoads(c, pen)
-    for (b in scene.blocks) drawBlock(c, pen, b)
+    val ink = Ink.get()
+    val mood = scene.mood
+    drawBackground(c, ink, scene, mood)
     for (cr in scene.crumbs) {
-        if (cr.big) pen.circle(c, cr.x.toFloat(), cr.y.toFloat(), 3.4f, rgb(0xc98a2b))
-        else pen.circle(c, cr.x.toFloat(), cr.y.toFloat(), 2.4f, rgb(0xe0a845))
+        if (cr.big) ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 3.4f, C_CRUMB_BIG, o = false)
+        else ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 2.4f, C_CRUMB, o = false)
     }
-    for (d in scene.drawables) drawDrawable(c, d)
+    for (d in scene.drawables) drawPlaced(c, d, mood)
+    if (mood == "evening") ink.rect(c, 0f, 0f, W, H, C_EVENING, o = false)
 }
 
-private fun drawRoads(c: Canvas, pen: Pen) {
-    val pitch = (WorldLayout.BLOCK_W + WorldLayout.ROAD).toFloat()
-    val pitchY = (WorldLayout.BLOCK_H + WorldLayout.ROAD).toFloat()
-    val road = WorldLayout.ROAD.toFloat()
-    val w = WORLD_W.toFloat(); val h = WORLD_H.toFloat()
-    val dash = DashPathEffect(floatArrayOf(26f, 22f), 0f)
-    pen.linePaint.pathEffect = dash
-    for (k in 0..WorldLayout.COLS) {
-        val x = k * pitch
-        pen.rect(c, x, 0f, road, h, ROAD_COLOR)
-        pen.line(c, x + road / 2, 0f, x + road / 2, h, ROAD_LINE, 3f)
-    }
-    for (j in 0..WorldLayout.ROWS) {
-        val y = j * pitchY
-        pen.rect(c, 0f, y, w, road, ROAD_COLOR)
-        pen.line(c, 0f, y + road / 2, w, y + road / 2, ROAD_LINE, 3f)
-    }
-    pen.linePaint.pathEffect = null
-    // Intersections hide the dashes
-    for (k in 0..WorldLayout.COLS) for (j in 0..WorldLayout.ROWS) pen.rect(c, k * pitch, j * pitchY, road, road, ROAD_COLOR)
+/** drawableSvg(): translate(f1(x) f1(y)) scale(flip ? -s : s, s), then the kind's own drawing. */
+private fun drawPlaced(c: Canvas, d: Drawable, mood: String) {
+    val sx = if (d.flip) -d.scale else d.scale
+    c.save()
+    c.translate(f1(d.x.toFloat()), f1(d.y.toFloat()))
+    c.scale((Math.round(sx * 1000.0 * 10.0) / 10.0 / 1000.0).toFloat(), d.scale.toFloat())
+    if (!drawDecorDrawable(c, d, mood)) drawFigure(c, d, mood)
+    c.restore()
 }
 
-private fun drawBlock(c: Canvas, pen: Pen, b: Block) {
-    val x = b.rect.x.toFloat(); val y = b.rect.y.toFloat()
-    val w = b.rect.w.toFloat(); val h = b.rect.h.toFloat()
+private fun drawBackground(c: Canvas, ink: Ink, scene: Scene, mood: String) {
+    ink.rect(c, 0f, 0f, W, H, C_GRASS, o = false)
+    // grass under the house blocks
+    for (b in scene.blocks) if (b.type == BlockType.HOUSES) {
+        ink.rect(c, b.x.toFloat(), b.y.toFloat(), b.w.toFloat(), b.h.toFloat(), C_HOUSE_GRASS, 14f, o = false)
+    }
+    // roads (asphalt + curb lines)
+    for (k in 0..COLS) {
+        val x = k * (BW + ROAD)
+        ink.rect(c, x, 0f, ROAD, H, C_ASPHALT, o = false)
+        ink.line(c, x + 6f, 0f, x + 6f, H, C_CURB_LINE, 4f)
+        ink.line(c, x + ROAD - 6f, 0f, x + ROAD - 6f, H, C_CURB_LINE, 4f)
+    }
+    for (j in 0..ROWS) {
+        val y = j * (BH + ROAD)
+        ink.rect(c, 0f, y, W, ROAD, C_ASPHALT, o = false)
+        ink.line(c, 0f, y + 6f, W, y + 6f, C_CURB_LINE, 4f)
+        ink.line(c, 0f, y + ROAD - 6f, W, y + ROAD - 6f, C_CURB_LINE, 4f)
+    }
+    for (k in 0..COLS) for (j in 0..ROWS) {
+        ink.rect(c, k * (BW + ROAD), j * (BH + ROAD), ROAD, ROAD, C_ASPHALT, o = false)
+    }
+    // dashed centre lines
+    for (k in 0..COLS) {
+        val x = k * (BW + ROAD) + ROAD / 2f
+        ink.line(c, x, 0f, x, H, C_CENTER, 3f, dashed = true)
+    }
+    for (j in 0..ROWS) {
+        val y = j * (BH + ROAD) + ROAD / 2f
+        ink.line(c, 0f, y, W, y, C_CENTER, 3f, dashed = true)
+    }
+    // zebra crossings at the intersections
+    for (k in 0..COLS) for (j in 0..ROWS) {
+        val x0 = k * (BW + ROAD); val y0 = j * (BH + ROAD)
+        for (i in 0 until 5) {
+            if (j > 0) ink.rect(c, x0 + 10f + i * 18f, y0 - 24f, 9f, 18f, C_ZEBRA, o = false)
+            if (j < ROWS) ink.rect(c, x0 + 10f + i * 18f, y0 + ROAD + 6f, 9f, 18f, C_ZEBRA, o = false)
+            if (k > 0) ink.rect(c, x0 - 24f, y0 + 10f + i * 18f, 18f, 9f, C_ZEBRA, o = false)
+            if (k < COLS) ink.rect(c, x0 + ROAD + 6f, y0 + 10f + i * 18f, 18f, 9f, C_ZEBRA, o = false)
+        }
+    }
+    for (b in scene.blocks) drawBlock(c, ink, b, mood)
+}
+
+private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String) {
+    val x = b.x.toFloat(); val y = b.y.toFloat()
     when (b.type) {
         BlockType.PARK -> {
-            pen.rect(c, x, y, w, h, rgb(0x8fcf7a), 26f)
-            b.pond?.let {
-                pen.oval(c, it.cx.toFloat(), it.cy.toFloat(), it.rx.toFloat(), it.ry.toFloat(), rgb(0x9fd8f0))
-                pen.ovalStroke(c, it.cx.toFloat(), it.cy.toFloat(), it.rx.toFloat(), it.ry.toFloat(), WHITE, 4f)
-                pen.oval(c, it.cx.toFloat() - 20f, it.cy.toFloat() + 4f, 10f, 5f, rgb(0x5fae5b))
+            ink.rect(c, x, y, BW, BH, C_PARK, 26f, o = false)
+            var tufts = false
+            ink.path.rewind()
+            for (d in b.dots) if (d.shape == "tuft") {
+                val dx = f1(d.x.toFloat()); val dy = f1(d.y.toFloat())
+                ink.path.moveTo(dx, dy); ink.path.rLineTo(-2f, -5f)
+                ink.path.moveTo(dx, dy); ink.path.rLineTo(0f, -6f)
+                ink.path.moveTo(dx, dy); ink.path.rLineTo(2f, -5f)
+                tufts = true
             }
-            for (d in b.dots) pen.circle(c, d.x.toFloat(), d.y.toFloat(), 2.2f, d.color)
+            if (tufts) ink.strokePath(c, C_TUFT, 1.2f, round = true)
+            val p = b.pond
+            if (p != null) {
+                val cx = f1(p.cx.toFloat()); val cy = f1(p.cy.toFloat())
+                val rx = p.rx.toFloat(); val ry = p.ry.toFloat()
+                ink.oval(c, cx, cy, rx + 5f, ry + 5f, C_SAND, o = false)
+                ink.oval(c, cx, cy, rx, ry, C_WATER, o = false, sc = C_WHITE, sw = 3f)
+                ink.path.rewind()
+                ink.path.moveTo(f1(cx - 40f), f1(cy - 10f)); ink.q(10f, -5f, 20f, 0f)
+                ink.path.moveTo(f1(cx + 14f), f1(cy + 16f)); ink.q(10f, -5f, 20f, 0f)
+                ink.path.moveTo(f1(cx + 20f), f1(cy - 20f)); ink.q(8f, -4f, 16f, 0f)
+                ink.strokePath(c, C_WHITE_80, 1.6f)
+                ink.oval(c, f1(cx - 20f), f1(cy + 4f), 10f, 5f, C_LILY, o = false)
+                ink.circle(c, f1(cx - 22f), f1(cy + 2f), 2f, C_LILY_FLOWER, o = false)
+            }
+            for (d in b.dots) if (d.shape == "circle") {
+                ink.circle(c, f1(d.x.toFloat()), f1(d.y.toFloat()), d.r.toFloat(), ink.col(d.color), o = false)
+            }
         }
         BlockType.MARKET -> {
-            pen.rect(c, x, y, w, h, rgb(0xf0dcae), 14f)
-            for (d in b.dots) pen.circle(c, d.x.toFloat(), d.y.toFloat(), 3f, d.color)
+            ink.rect(c, x, y, BW, BH, C_MARKET, 14f, o = false)
+            for (d in b.dots) ink.circle(c, f1(d.x.toFloat()), f1(d.y.toFloat()), d.r.toFloat(), ink.col(d.color), o = false)
         }
         BlockType.PLAZA -> {
-            pen.rect(c, x, y, w, h, rgb(0xe8e1d2), 14f)
-            b.pond?.let {
-                val cx = it.cx.toFloat(); val cy = it.cy.toFloat()
-                pen.circle(c, cx, cy, 62f, rgb(0xb9e3f2))
-                pen.circleStroke(c, cx, cy, 62f, WHITE, 8f)
-                pen.circle(c, cx, cy, 14f, rgb(0x8cc9e0))
-            }
+            val cx = x + BW / 2f; val cy = y + BH / 2f
+            ink.rect(c, x, y, BW, BH, C_PLAZA, 14f, o = false)
+            ink.path.rewind()
+            for (i in 1 until 8) { ink.path.moveTo(x + i * BW / 8f, y); ink.path.rLineTo(0f, BH) }
+            for (j in 1 until 7) { ink.path.moveTo(x, y + j * BH / 7f); ink.path.rLineTo(BW, 0f) }
+            ink.strokePath(c, C_PLAZA_LINE, 2f)
+            ink.circle(c, cx, cy, 62f, C_BASIN, o = false, sc = C_WHITE, sw = 8f)
+            ink.path.rewind()
+            ink.path.addCircle(cx, cy, 40f, Path.Direction.CW)
+            ink.strokePath(c, C_WHITE_70, 2f)
+            ink.circle(c, cx, cy, 14f, C_FOUNTAIN, o = false)
+            ink.path.rewind()
+            ink.path.moveTo(cx, cy); ink.q(-18f, -30f, -30f, -8f)
+            ink.path.moveTo(cx, cy); ink.q(18f, -30f, 30f, -8f)
+            ink.path.moveTo(cx, cy); ink.q(0f, -38f, 0f, -40f)
+            ink.strokePath(c, C_WHITE_90, 3f, round = true)
         }
         BlockType.HOUSES -> {
-            pen.rect(c, x, y, w, h, rgb(0xd3e7b9), 14f)
-            pen.rect(c, x, y + h - 78f, w, 78f, rgb(0xe6dfcf), 10f)
-            for (house in b.houses) drawHouse(c, pen, house)
-        }
-    }
-}
-
-private fun drawHouse(c: Canvas, pen: Pen, hs: House) {
-    val x = hs.x.toFloat(); val base = hs.baseY.toFloat()
-    val w = hs.w.toFloat(); val h = hs.h.toFloat()
-    pen.rect(c, x, base - h, w, h, hs.wall)
-    pen.poly(c, hs.roof, x - 7f, base - h, x + w / 2, base - h - 46f, x + w + 7f, base - h)
-    val floors = if (hs.h > 150) 2 else 1
-    val glass = rgb(0xbfe6f5)
-    var idx = 0
-    for (f in 0 until floors) for (col in 0..1) {
-        val wx = x + 16f + col * (w - 32f - 24f)
-        val wy = base - h + 16f + f * 56f
-        pen.rect(c, wx, wy, 24f, 28f, glass, 3f)
-        pen.rectStroke(c, wx, wy, 24f, 28f, WHITE, 3f, 3f)
-        pen.line(c, wx + 12f, wy, wx + 12f, wy + 28f, WHITE, 2f)
-        pen.line(c, wx, wy + 14f, wx + 24f, wy + 14f, WHITE, 2f)
-        val curtain = hs.curtains.getOrElse(idx++) { 0 }
-        if (curtain != 0) pen.rect(c, wx + 2f, wy + 2f, 9f, 24f, (curtain and 0xFFFFFF) or (0xCC shl 24))
-    }
-    pen.rect(c, x + w / 2 - 13f, base - 42f, 26f, 42f, if (hs.bakery) rgb(0x7a4e2d) else rgb(0x8a5a3b), 3f)
-    pen.circle(c, x + w / 2 + 7f, base - 20f, 2f, rgb(0xffd84a))
-    if (hs.bakery) {
-        val sw = w / 8f
-        for (i in 0 until 8) pen.rect(c, x + i * sw, base - 62f, sw, 16f, if (i % 2 == 1) WHITE else rgb(0xe45b4b))
-        pen.rect(c, x + 6f, base - h + 66f, w - 12f, 22f, rgb(0xfff6dc), 4f)
-        pen.rectStroke(c, x + 6f, base - h + 66f, w - 12f, 22f, rgb(0xc99a62), 2f, 4f)
-        pen.text(c, "Bäckerei", x + w / 2, base - h + 82f, 14f, rgb(0x8a4b1c))
-    }
-}
-
-/** Figures drawn as small icons in the UI (goal bar, dialogs, menu). */
-enum class IconKind { FIPS, RACCOON_CAKE, CAKE, MAGNIFIER }
-
-/** Icon viewBox, same as the web version: -30 -70 60 75. */
-private const val VB_X = -30f
-private const val VB_Y = -70f
-private const val VB_W = 60f
-private const val VB_H = 75f
-
-@Composable
-fun FigureIcon(kind: IconKind, modifier: Modifier) {
-    ComposeCanvas(modifier) {
-        drawIntoCanvas { canvas ->
-            val c = canvas.nativeCanvas
-            val s = min(size.width / VB_W, size.height / VB_H)
-            if (s <= 0f) return@drawIntoCanvas
-            c.save()
-            c.translate((size.width - VB_W * s) / 2f - VB_X * s, (size.height - VB_H * s) / 2f - VB_Y * s)
-            c.scale(s, s)
-            drawIcon(c, kind)
-            c.restore()
-        }
-    }
-}
-
-internal fun drawIcon(c: Canvas, kind: IconKind) {
-    val pen = Pen.get()
-    when (kind) {
-        IconKind.FIPS -> pen.fox(c, de.wuselburg.core.FoxStyle.FIPS)
-        IconKind.RACCOON_CAKE -> pen.raccoon(c, true)
-        IconKind.CAKE -> {
-            pen.oval(c, 0f, -4f, 26f, 5f, rgb(0xe6dfcf))
-            pen.rect(c, -20f, -30f, 40f, 24f, rgb(0xf7c6d9), 5f)
-            pen.rect(c, -20f, -38f, 40f, 12f, WHITE, 6f)
-            for (i in -1..1) pen.rect(c, i * 11f - 1.5f, -26f, 3f, 8f, WHITE, 1.5f)
-            pen.rect(c, -1.5f, -52f, 3f, 14f, rgb(0xf2b84b), 1f)
-            pen.oval(c, 0f, -55f, 2.6f, 3.6f, rgb(0xffd84a))
-            pen.circle(c, 0f, -42f, 3.2f, rgb(0xd9433b))
-        }
-        IconKind.MAGNIFIER -> {
-            pen.path.rewind(); pen.path.moveTo(8f, -18f); pen.path.lineTo(24f, -2f)
-            pen.strokePath(c, rgb(0x8a5a3b), 8f, round = true)
-            pen.circle(c, -5f, -34f, 20f, rgba(0xbfe6f5, .55f))
-            pen.circleStroke(c, -5f, -34f, 20f, rgb(0x176c68), 5f)
-            pen.oval(c, -12f, -42f, 5f, 3f, rgba(0xffffff, .7f), -35f)
+            ink.rect(c, x, y + BH - 78f, BW, 78f, C_SIDEWALK, 10f, o = false)
+            ink.path.rewind()
+            for (i in 0 until 12) { ink.path.moveTo(x + 10f + i * 35f, y + BH - 78f); ink.path.rLineTo(0f, 78f) }
+            ink.strokePath(c, C_PLAZA_LINE, 1.5f)
+            for (hd in b.houses) ink.house(c, hd, mood)
         }
     }
 }
