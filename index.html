@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#1f8f8a">
+  <title>Wuselburg – Wo steckt Fips?</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main id="app">
+
+    <section id="menu" class="screen">
+      <div class="menu-inner">
+        <svg id="menu-logo" viewBox="-30 -70 60 75" aria-hidden="true"></svg>
+        <h1>Wuselburg</h1>
+        <p class="tagline">Wo steckt Fips? Such ihn im Gewimmel und löse die Fälle der Stadt!</p>
+        <div id="level-list"></div>
+        <p class="hint-small">Tipp: Mit zwei Fingern zoomen, mit einem Finger verschieben.</p>
+      </div>
+    </section>
+
+    <section id="game" class="screen hidden">
+      <svg id="stage" xmlns="http://www.w3.org/2000/svg" aria-label="Wimmelbild"><g id="world"></g></svg>
+
+      <header id="hud">
+        <button id="btn-menu" class="round" aria-label="Zurück zum Menü">☰</button>
+        <div id="goal">
+          <svg id="goal-icon" viewBox="-30 -70 60 75" aria-hidden="true"></svg>
+          <div class="goal-text">
+            <strong id="goal-title"></strong>
+            <span id="goal-sub"></span>
+          </div>
+        </div>
+        <div id="timer">0:00</div>
+        <button id="btn-hint" class="round hint" aria-label="Tipp">💡</button>
+      </header>
+
+      <div id="zoom-controls">
+        <button id="zoom-in" class="round" aria-label="Hineinzoomen">＋</button>
+        <button id="zoom-out" class="round" aria-label="Herauszoomen">－</button>
+      </div>
+
+      <div id="overlay" class="hidden">
+        <div id="card">
+          <svg id="card-art" viewBox="-30 -70 60 75" aria-hidden="true"></svg>
+          <h2 id="card-title"></h2>
+          <p id="card-body"></p>
+          <div id="card-stars"></div>
+          <div id="card-buttons"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+  <script src="game.js"></script>
+</body>
+</html>
