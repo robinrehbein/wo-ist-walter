@@ -99,6 +99,11 @@ const STYLE = { paper: true };
 const OL = () => STYLE.paper
   ? 'stroke="#fffaf0" stroke-width="1.3" stroke-linejoin="round"'
   : 'stroke="rgba(30,20,40,.32)" stroke-width=".7" stroke-linejoin="round"';
+// Einteilige Silhouette: erst ein breiter Umriss, dann die Füllung ohne Innenlinien
+const OUT = () => STYLE.paper
+  ? 'stroke="#fffaf0" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"'
+  : 'stroke="rgba(30,20,40,.32)" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round"';
+const sil = shapes => `<g ${OUT()}>${shapes}</g><g stroke="none">${shapes}</g>`;
 const HOUSE_EDGE = () => STYLE.paper ? 'stroke="#fffaf0" stroke-width="1.6"' : 'stroke="rgba(30,20,40,.28)" stroke-width="1"';
 
 function fox(o) {
@@ -251,32 +256,50 @@ function makeDog(r) {
 }
 function dogSvg(d) {
   const c = d.color;
-  let s = `<ellipse cx="0" cy="1" rx="15" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>`;
+  const sh = `<ellipse cx="0" cy="1" rx="15" ry="3" fill="rgba(0,0,0,.13)"/>`;
+  const nose = (x, y) => `<ellipse cx="${x}" cy="${y}" rx="1.7" ry="1.3" fill="#1c1418" stroke="none"/>`;
+  const eye = (x, y) => `<circle cx="${x}" cy="${y}" r="1.2" fill="#111" stroke="none"/>`;
   if (d.breed === 'lab') {
-    s += `<path d="M14,-14 Q22,-22 19,-26" stroke="${c}" stroke-width="3.5" stroke-linecap="round" fill="none"/>` +
-      `<rect x="-12" y="-9" width="4" height="9" rx="2" fill="${c}"/><rect x="8" y="-9" width="4" height="9" rx="2" fill="${c}"/>` +
-      `<ellipse cx="0" cy="-15" rx="15" ry="8" fill="${c}"/><circle cx="-14" cy="-22" r="7" fill="${c}"/>` +
-      `<ellipse cx="-19.5" cy="-20" rx="4" ry="3" fill="#f3e6d3"/><circle cx="-12" cy="-23.5" r="1.1" fill="#111" stroke="none"/>` +
-      `<path d="M-12,-27 q-3,6 -6,3" fill="#4a2f17"/>`;
-  } else if (d.breed === 'dachs') {
-    s += `<path d="M20,-11 Q26,-15 24,-19" stroke="${c}" stroke-width="3" stroke-linecap="round" fill="none"/>` +
-      `<rect x="-17" y="-6" width="4" height="6" rx="2" fill="${c}"/><rect x="-6" y="-6" width="4" height="6" rx="2" fill="${c}"/><rect x="8" y="-6" width="4" height="6" rx="2" fill="${c}"/><rect x="16" y="-6" width="4" height="6" rx="2" fill="${c}"/>` +
-      `<ellipse cx="2" cy="-11" rx="21" ry="6.5" fill="${c}"/><circle cx="-20" cy="-15" r="6" fill="${c}"/>` +
-      `<ellipse cx="-25" cy="-13.5" rx="3.6" ry="2.6" fill="#f3e6d3"/><circle cx="-19" cy="-16.5" r="1" fill="#111" stroke="none"/>` +
-      `<path d="M-17,-20 q4,2 3,9 q-4,-2 -3,-9Z" fill="#3b2a18"/>`;
-  } else if (d.breed === 'spot') {
-    s += `<path d="M14,-15 Q22,-23 19,-27" stroke="#f5f1e8" stroke-width="3.5" stroke-linecap="round" fill="none"/>` +
-      `<rect x="-12" y="-9" width="4" height="9" rx="2" fill="#f5f1e8"/><rect x="8" y="-9" width="4" height="9" rx="2" fill="#f5f1e8"/>` +
-      `<ellipse cx="0" cy="-15" rx="15" ry="8" fill="#f5f1e8"/><circle cx="-14" cy="-22" r="7" fill="#f5f1e8"/>` +
-      `<g fill="${c}" stroke="none"><ellipse cx="-3" cy="-17" rx="5" ry="4"/><ellipse cx="7" cy="-13" rx="4" ry="3.2"/><ellipse cx="-17" cy="-25" rx="3.4" ry="4"/></g>` +
-      `<ellipse cx="-19.5" cy="-20" rx="4" ry="3" fill="#ffffff"/><circle cx="-12" cy="-23.5" r="1.1" fill="#111" stroke="none"/>`;
-  } else {
-    s += `<rect x="-9" y="-9" width="2.6" height="9" fill="#555555"/><rect x="7" y="-9" width="2.6" height="9" fill="#555555"/>` +
-      `<g fill="${c}"><circle cx="-6" cy="-17" r="7.5"/><circle cx="6" cy="-17" r="7.5"/><circle cx="0" cy="-19" r="8"/>` +
-      `<circle cx="15" cy="-22" r="4"/><circle cx="-14" cy="-25" r="6.5"/><circle cx="-20" cy="-27" r="4.2"/><circle cx="-9" cy="-29" r="4.2"/></g>` +
-      `<ellipse cx="-19" cy="-23" rx="3" ry="2.4" fill="#3a2a30"/><circle cx="-14" cy="-26" r="1" fill="#111" stroke="none"/>`;
+    const body = `<ellipse cx="19" cy="-24" rx="2.6" ry="7.5" transform="rotate(35 19 -24)" fill="${c}"/>` +
+      `<rect x="-13" y="-10" width="5" height="10" rx="2.4" fill="${c}"/><rect x="-5" y="-10" width="5" height="10" rx="2.4" fill="${c}"/>` +
+      `<rect x="6" y="-10" width="5" height="10" rx="2.4" fill="${c}"/><rect x="13" y="-10" width="5" height="10" rx="2.4" fill="${c}"/>` +
+      `<ellipse cx="3" cy="-16" rx="16" ry="8" fill="${c}"/><ellipse cx="-11" cy="-21" rx="7" ry="8" transform="rotate(-25 -11 -21)" fill="${c}"/>` +
+      `<ellipse cx="-15" cy="-26" rx="7.5" ry="6.5" fill="${c}"/><ellipse cx="-22" cy="-23.5" rx="5.5" ry="3.8" fill="${c}"/>`;
+    return sh + sil(body) +
+      `<ellipse cx="-22" cy="-22.6" rx="4.6" ry="2.8" fill="#f3e6d3" stroke="none"/>` + nose(-25.5, -24.2) + eye(-16.5, -27.5) +
+      `<ellipse cx="-11" cy="-25" rx="3.2" ry="6" transform="rotate(14 -11 -25)" fill="rgba(40,20,5,.45)" stroke="none"/>`;
   }
-  return s + `</g>`;
+  if (d.breed === 'dachs') {
+    const body = `<ellipse cx="25" cy="-16" rx="2.4" ry="6.5" transform="rotate(40 25 -16)" fill="${c}"/>` +
+      `<rect x="-18" y="-7" width="5" height="7" rx="2.4" fill="${c}"/><rect x="-9" y="-7" width="5" height="7" rx="2.4" fill="${c}"/>` +
+      `<rect x="10" y="-7" width="5" height="7" rx="2.4" fill="${c}"/><rect x="18" y="-7" width="5" height="7" rx="2.4" fill="${c}"/>` +
+      `<ellipse cx="3" cy="-12" rx="22" ry="6.5" fill="${c}"/><ellipse cx="-17" cy="-15" rx="6" ry="7" fill="${c}"/>` +
+      `<ellipse cx="-20" cy="-18" rx="6.8" ry="6" fill="${c}"/><ellipse cx="-27" cy="-16" rx="6" ry="3.2" fill="${c}"/>`;
+    return sh + sil(body) +
+      nose(-32, -17.2) + eye(-21.5, -19.5) +
+      `<ellipse cx="-17" cy="-15.5" rx="3" ry="6" transform="rotate(10 -17 -15.5)" fill="rgba(40,20,5,.5)" stroke="none"/>`;
+  }
+  if (d.breed === 'spot') {
+    const w = '#f5f1e8';
+    const body = `<ellipse cx="19" cy="-24" rx="2.6" ry="7.5" transform="rotate(35 19 -24)" fill="${w}"/>` +
+      `<rect x="-13" y="-10" width="5" height="10" rx="2.4" fill="${w}"/><rect x="-5" y="-10" width="5" height="10" rx="2.4" fill="${w}"/>` +
+      `<rect x="6" y="-10" width="5" height="10" rx="2.4" fill="${w}"/><rect x="13" y="-10" width="5" height="10" rx="2.4" fill="${w}"/>` +
+      `<ellipse cx="3" cy="-16" rx="16" ry="8" fill="${w}"/><ellipse cx="-11" cy="-21" rx="7" ry="8" transform="rotate(-25 -11 -21)" fill="${w}"/>` +
+      `<ellipse cx="-15" cy="-26" rx="7.5" ry="6.5" fill="${w}"/><ellipse cx="-22" cy="-23.5" rx="5.5" ry="3.8" fill="${w}"/>`;
+    return sh + sil(body) +
+      `<g fill="${c}" stroke="none"><ellipse cx="2" cy="-18" rx="5.5" ry="4"/><ellipse cx="11" cy="-14" rx="4" ry="3.2"/><ellipse cx="-17.5" cy="-28.5" rx="3.2" ry="3"/></g>` +
+      nose(-25.5, -24.2) + eye(-16.5, -27.5) +
+      `<ellipse cx="-11" cy="-25" rx="3.2" ry="6" transform="rotate(14 -11 -25)" fill="${c}" stroke="none"/>`;
+  }
+  // poodle: Locken-Puschel
+  const body = `<rect x="-8" y="-10" width="2.8" height="10" fill="${c}"/><rect x="-2" y="-10" width="2.8" height="10" fill="${c}"/>` +
+    `<rect x="5" y="-10" width="2.8" height="10" fill="${c}"/><rect x="11" y="-10" width="2.8" height="10" fill="${c}"/>` +
+    `<circle cx="-7" cy="-5" r="3.8" fill="${c}"/><circle cx="12" cy="-5" r="3.8" fill="${c}"/>` +
+    `<ellipse cx="3" cy="-16" rx="13" ry="7.5" fill="${c}"/><circle cx="-8" cy="-20" r="7" fill="${c}"/>` +
+    `<circle cx="-13" cy="-26" r="6" fill="${c}"/><circle cx="-13" cy="-32.5" r="3.8" fill="${c}"/>` +
+    `<circle cx="-7" cy="-26" r="3.8" fill="${c}"/><ellipse cx="-20" cy="-24" rx="4.4" ry="3" fill="${c}"/>` +
+    `<rect x="14" y="-22" width="2" height="8" transform="rotate(25 14 -14)" fill="${c}"/><circle cx="19" cy="-24" r="4" fill="${c}"/>`;
+  return sh + sil(body) + nose(-23.5, -24.4) + eye(-14.5, -26.5);
 }
 
 function makeCat(r) {
@@ -285,22 +308,27 @@ function makeCat(r) {
 }
 function catSvg(d) {
   const c = d.color;
-  let s = `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(0,0,0,.13)"/><g ${OL()}>`;
+  const sh = `<ellipse cx="0" cy="1" rx="11" ry="3" fill="rgba(0,0,0,.13)"/>`;
+  const eyes = (x1, x2, y) => `<g fill="#7fcf5a" stroke="none"><ellipse cx="${x1}" cy="${y}" rx="1.1" ry="1.3"/><ellipse cx="${x2}" cy="${y}" rx="1.1" ry="1.3"/></g>` +
+    `<g fill="#111" stroke="none"><ellipse cx="${x1}" cy="${y}" rx=".4" ry="1"/><ellipse cx="${x2}" cy="${y}" rx=".4" ry="1"/></g>`;
   if (d.pose === 'stand') {
-    s += `<path d="M12,-10 Q24,-16 18,-30" stroke="${c}" stroke-width="3" stroke-linecap="round" fill="none"/>` +
-      `<ellipse cx="0" cy="-10" rx="12" ry="7.5" fill="${c}"/><circle cx="-11" cy="-17" r="6" fill="${c}"/>` +
-      `<path d="M-16,-21 L-15,-27 L-11,-22Z M-7,-22 L-6,-27 L-3,-20Z" fill="${c}"/>` +
-      `<circle cx="-13" cy="-17.5" r="1" fill="#9be07a" stroke="none"/><circle cx="-9" cy="-17.5" r="1" fill="#9be07a" stroke="none"/>`;
-    if (d.stripes) s += `<path d="M-4,-17 v6 M1,-17 v7 M6,-16 v6" stroke="rgba(0,0,0,.3)" stroke-width="1.2" fill="none"/>`;
-  } else {
-    s += `<path d="M7,-3 Q18,-3 16,-12 Q15,-16 11,-12" stroke="${c}" stroke-width="3" stroke-linecap="round" fill="none"/>` +
-      `<ellipse cx="0" cy="-10" rx="8.5" ry="10.5" fill="${c}"/><circle cx="0" cy="-26" r="6.6" fill="${c}"/>` +
-      `<path d="M-6.4,-30 L-5.6,-36.5 L-1.4,-31Z M6.4,-30 L5.6,-36.5 L1.4,-31Z" fill="${c}"/>` +
-      `<circle cx="-2.6" cy="-26.4" r="1.1" fill="#9be07a" stroke="none"/><circle cx="2.6" cy="-26.4" r="1.1" fill="#9be07a" stroke="none"/>` +
-      `<ellipse cx="-3.6" cy="-1.6" rx="3" ry="1.8" fill="${c}"/><ellipse cx="3.6" cy="-1.6" rx="3" ry="1.8" fill="${c}"/>`;
-    if (d.stripes) s += `<path d="M-4,-16 v7 M0,-17 v8 M4,-16 v7" stroke="rgba(0,0,0,.3)" stroke-width="1.2" fill="none"/>`;
+    const body = `<ellipse cx="19" cy="-19" rx="2.4" ry="10" transform="rotate(28 19 -19)" fill="${c}"/>` +
+      `<rect x="-9" y="-8" width="4" height="8" rx="2" fill="${c}"/><rect x="-3" y="-8" width="4" height="8" rx="2" fill="${c}"/>` +
+      `<rect x="6" y="-8" width="4" height="8" rx="2" fill="${c}"/><rect x="11" y="-8" width="4" height="8" rx="2" fill="${c}"/>` +
+      `<ellipse cx="2" cy="-12" rx="13" ry="6.5" fill="${c}"/><ellipse cx="-9" cy="-16" rx="5" ry="6" fill="${c}"/>` +
+      `<circle cx="-12" cy="-19" r="6" fill="${c}"/>` +
+      `<path d="M-17,-22 L-16,-29 L-11,-24Z M-8,-24 L-6,-30 L-4,-22Z" fill="${c}"/>`;
+    let s = sh + sil(body);
+    if (d.stripes) s += `<path d="M-3,-17 v6 M2,-18 v7 M7,-17 v6" stroke="rgba(0,0,0,.3)" stroke-width="1.3" fill="none"/>`;
+    return s + eyes(-14.4, -9.8, -19.4) + `<path d="M-12.8,-16.6 l1.4,1.2 l1.4,-1.2Z" fill="#e48a8a" stroke="none"/>`;
   }
-  return s + `</g>`;
+  const body = `<ellipse cx="11" cy="-4" rx="8" ry="2.8" transform="rotate(-12 11 -4)" fill="${c}"/><circle cx="17" cy="-8" r="2.6" fill="${c}"/>` +
+    `<ellipse cx="0" cy="-11" rx="8.8" ry="11" fill="${c}"/><circle cx="0" cy="-26" r="6.8" fill="${c}"/>` +
+    `<path d="M-6.8,-29.5 L-5.8,-37 L-1.4,-31Z M6.8,-29.5 L5.8,-37 L1.4,-31Z" fill="${c}"/>` +
+    `<ellipse cx="-3.8" cy="-1.5" rx="3.2" ry="2" fill="${c}"/><ellipse cx="3.8" cy="-1.5" rx="3.2" ry="2" fill="${c}"/>`;
+  let s = sh + sil(body);
+  if (d.stripes) s += `<path d="M-4,-17 v7 M0,-18 v8 M4,-17 v7" stroke="rgba(0,0,0,.3)" stroke-width="1.3" fill="none"/>`;
+  return s + eyes(-2.7, 2.7, -26.4) + `<path d="M-1.2,-23.6 l1.2,1.1 l1.2,-1.1Z" fill="#e48a8a" stroke="none"/>`;
 }
 
 const pigeonSvg = () =>
@@ -406,7 +434,9 @@ function houseSvg(d, mood) {
     }
     if (d.chimney) s += `<rect x="${x + w * 0.68}" y="${top - 40}" width="12" height="22" fill="#9c5b45"/><rect x="${x + w * 0.68 - 2}" y="${top - 43}" width="16" height="4" fill="#7e4634"/>`;
   }
+  const hasShop = d.bakery || d.shop;
   for (let f = 0; f < floors; f++) {
+    if (hasShop && floors === 2 && f === 1) continue;   // Ladenschild statt Erdgeschoss-Fenster
     for (let c = 0; c < 2; c++) {
       const wx = x + 16 + c * (w - 32 - 24), wy = top + 16 + f * 56;
       if (d.shutters) s += `<rect x="${wx - 7}" y="${wy}" width="6" height="28" fill="${d.shutterColor}"/><rect x="${wx + 25}" y="${wy}" width="6" height="28" fill="${d.shutterColor}"/>`;
@@ -576,14 +606,20 @@ function buildSceneData(cfg) {
     const { x, y } = b;
     if (b.type === 'park') {
       const px = x + 120 + r() * 180, py = y + 120 + r() * 140;
-      b.pond = { cx: px, cy: py, rx: 70, ry: 44 };
+      b.pond = { cx: px, cy: py, rx: 60, ry: 40 };
       ponds.push(b.pond);
       obstacles.push({ x: px, y: py, r: 55 });
       for (let i = 0; i < 40; i++) { const a = r(), c = r(), e = r(); b.dots.push({ x: x + 14 + a * (BW - 28), y: y + 14 + c * (BH - 28), r: 2.2, color: idx(FLOWERC, e), shape: 'circle' }); }
       for (let i = 0; i < 26; i++) { const a = r(), c = r(); b.dots.push({ x: x + 14 + a * (BW - 28), y: y + 14 + c * (BH - 28), r: 0, color: '#6fb85f', shape: 'tuft' }); }
-      for (let i = 0; i < 7; i++) { const a = r(), c = r(); addTree(x + 40 + a * (BW - 80), y + 80 + c * (BH - 90)); }
+      const dry = (tx, ty, m) => {      // Bäume und Büsche nicht ins Wasser stellen
+        const dx = tx - px, dy = ty - py, q = Math.hypot(dx / (b.pond.rx + m), dy / (b.pond.ry + m));
+        if (q >= 1) return [tx, ty];
+        if (q < 1e-6) return [tx, py + b.pond.ry + m];
+        return [px + dx / q * 1.02, py + dy / q * 1.02];
+      };
+      for (let i = 0; i < 7; i++) { const a = r(), c = r(); addTree(...dry(x + 40 + a * (BW - 80), y + 80 + c * (BH - 90), 16)); }
       for (let i = 0; i < 2; i++) { const a = r(); addBench(x + 70 + a * (BW - 140), y + BH - 26); }
-      for (let i = 0; i < 3; i++) { const a = r(), c = r(); addBush(x + 30 + a * (BW - 60), y + 40 + c * (BH - 80)); }
+      for (let i = 0; i < 3; i++) { const a = r(), c = r(); addBush(...dry(x + 30 + a * (BW - 60), y + 40 + c * (BH - 80), 12)); }
       for (let i = 0; i < 3; i++) { const a = r(), c = r(); drawables.push(D('duck', px - 40 + a * 80, py - 14 + c * 28, 0.9, a < 0.5, {})); }
       walk.push({ x: x + 20, y: y + 20, w: BW - 40, h: BH - 30, zone: 'park' });
     } else if (b.type === 'market') {
@@ -897,9 +933,16 @@ function sceneToSvg(data) {
       for (let i = 1; i < 8; i++) tiles += `M${x + i * BW / 8},${y} v${BH} `;
       for (let j = 1; j < 7; j++) tiles += `M${x},${y + j * BH / 7} h${BW} `;
       bg += `<path d="${tiles}" stroke="rgba(0,0,0,.05)" stroke-width="2" fill="none"/>`;
-      bg += `<circle cx="${cx}" cy="${cy}" r="62" fill="#b9e3f2" stroke="#ffffff" stroke-width="8"/><circle cx="${cx}" cy="${cy}" r="40" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="2"/>` +
-            `<circle cx="${cx}" cy="${cy}" r="14" fill="#8cc9e0"/>` +
-            `<path d="M${cx},${cy} q-18,-30 -30,-8 M${cx},${cy} q18,-30 30,-8 M${cx},${cy} q0,-38 0,-40" stroke="#ffffff" stroke-width="3" stroke-linecap="round" fill="none" opacity=".9"/>`;
+      bg += `<ellipse cx="${cx + 2}" cy="${cy + 6}" rx="58" ry="42" fill="rgba(45,30,15,.16)"/>` +
+            `<ellipse cx="${cx}" cy="${cy}" rx="56" ry="40" fill="#f6f1e4" stroke="#ffffff" stroke-width="2"/>` +
+            `<ellipse cx="${cx}" cy="${cy}" rx="47" ry="32" fill="#9fd8f0"/>` +
+            `<path d="M${cx - 34},${cy + 8} q8,-4 16,0 M${cx + 14},${cy + 16} q8,-4 16,0 M${cx + 22},${cy - 4} q6,-3 12,0" stroke="#ffffff" stroke-width="1.6" fill="none" opacity=".8"/>` +
+            `<ellipse cx="${cx}" cy="${cy + 2}" rx="15" ry="9" fill="#d9d2c0" stroke="#ffffff" stroke-width="1.6"/>` +
+            `<rect x="${cx - 4}" y="${cy - 26}" width="8" height="26" fill="#cfc8b5" stroke="#ffffff" stroke-width="1.4"/>` +
+            `<ellipse cx="${cx}" cy="${cy - 24}" rx="19" ry="7" fill="#f6f1e4" stroke="#ffffff" stroke-width="1.6"/>` +
+            `<ellipse cx="${cx}" cy="${cy - 25}" rx="14" ry="4.6" fill="#b9e3f2"/>` +
+            `<path d="M${cx},${cy - 25} q0,-14 0,-18 M${cx},${cy - 25} q-9,-12 -15,-4 M${cx},${cy - 25} q9,-12 15,-4" stroke="#e8f8ff" stroke-width="2.4" stroke-linecap="round" fill="none"/>` +
+            `<g fill="#ffffff"><circle cx="${cx - 17}" cy="${cy - 22}" r="1.6"/><circle cx="${cx + 17}" cy="${cy - 22}" r="1.6"/><circle cx="${cx}" cy="${cy - 46}" r="1.8"/></g>`;
     } else {
       if (paper) bg += `<rect x="${x}" y="${y}" width="${BW}" height="${BH}" rx="14" fill="#d3e7b9" stroke="#fffaf0" stroke-width="2"/>`;
       bg += `<rect x="${x}" y="${y + BH - 78}" width="${BW}" height="78" rx="10" fill="#e6dfcf"/>`;

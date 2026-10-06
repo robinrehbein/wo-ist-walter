@@ -7,6 +7,11 @@ werden zur Laufzeit aus einem Seed gezeichnet. Enthalten sind vier Level: *Markt
 
 - Paketname: `de.wuselburg.game`, minSdk 26 (Android 8.0), targetSdk/compileSdk 35
 - Läuft auf Handy und Tablet, im Hoch- und Querformat
+- Zwei Stile wie im Web: **Papier-Optik** (Standard: weiße Schnittkanten, Schlagschatten, Papierkörnung) und
+  **Klassisch** (dunkler Umriss). Der Schalter steht im Menü unter der Levelliste, die Wahl wird gespeichert und beim
+  Levelstart gelesen. Schlagschatten werden ohne Weichzeichner als versetzte Silhouette in einer einzigen
+  Alpha-Ebene pro Gruppe (Häuser, Figuren/Deko) gezeichnet; die Körnung ist `app/src/main/res/drawable-nodpi/paper_grain.png`
+  (256x256, von uns erzeugt, identisch mit `../paper-grain.png`, keine Drittlizenz).
 - Steuerung: ein Finger verschiebt, zwei Finger zoomen, Tippen markiert einen Verdacht
 
 ## Bauen

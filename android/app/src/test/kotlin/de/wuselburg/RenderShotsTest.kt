@@ -3,6 +3,8 @@ package de.wuselburg
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Rect
+import android.graphics.BitmapFactory
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import de.wuselburg.core.Drawable
 import de.wuselburg.core.Levels
@@ -17,9 +19,14 @@ import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class RenderShotsTest {
-    private val outDir = File("/tmp/claude-0/-home-user-wo-ist-walter/34a5a771-de7d-5e7d-81c8-aa5008781eb4/scratchpad/android-shots2")
+    private val outDir = File("/tmp/claude-0/-home-user-wo-ist-walter/34a5a771-de7d-5e7d-81c8-aa5008781eb4/scratchpad/android-shots3")
     private val big = 6000
     private val k = big / 2180.0
+
+    private val grain: Bitmap by lazy {
+        val ctx = ApplicationProvider.getApplicationContext<android.content.Context>()
+        BitmapFactory.decodeResource(ctx.resources, R.drawable.paper_grain, BitmapFactory.Options().apply { inScaled = false })
+    }
 
     private fun save(b: Bitmap, name: String) {
         outDir.mkdirs()
@@ -43,7 +50,7 @@ class RenderShotsTest {
     @Test fun overviews() {
         for (id in listOf("fips1", "fips2", "fips3", "case1")) {
             val s = scene(id)
-            val bmp = renderSceneToBitmap(s, 1800)
+            val bmp = renderSceneToBitmap(s, 1800, paper = true, grain = grain)
             save(bmp, "${id}_full.png")
             val seen = HashSet<Int>()
             for (x in 0 until bmp.width step 7) for (y in 0 until bmp.height step 7) seen.add(bmp.getPixel(x, y))
@@ -51,10 +58,17 @@ class RenderShotsTest {
         }
     }
 
+    @Test fun classicOverview() {
+        val s = scene("fips3")
+        save(renderSceneToBitmap(s, 1800, paper = false), "fips3_classic_full.png")
+        val big6 = renderSceneToBitmap(s, big, paper = false)
+        s.drawables.firstOrNull { it.kind == "prop" && it.strOrNull("type") == "blanket" }?.let { save(cropD(big6, it, 160.0, 120.0), "z_picnic_classic.png") }
+    }
+
     @Test fun zoomCrops() {
         for (id in listOf("fips1", "fips3", "case1")) {
             val s = scene(id)
-            val bmp = renderSceneToBitmap(s, big)
+            val bmp = renderSceneToBitmap(s, big, paper = true, grain = grain)
             val step = s.steps.first()
             save(crop(bmp, step.centerX, step.centerY, 120.0, 120.0), "${id}_zoom_target.png")
             if (id != "fips3") continue
@@ -98,11 +112,14 @@ class RenderShotsTest {
 
     @Test fun perf() {
         val s = scene("fips3")
-        recordScenePicture(s) // warm-up
+        recordScenePicture(s, true, grain) // warm-up
         val t0 = System.nanoTime()
         val n = 5
-        repeat(n) { recordScenePicture(s) }
+        repeat(n) { recordScenePicture(s, true, grain) }
         val ms = (System.nanoTime() - t0) / 1e6 / n
-        println("PERF drawables=${s.drawables.size} recordScenePicture avg ${"%.1f".format(ms)} ms")
+        val t1 = System.nanoTime()
+        repeat(n) { recordScenePicture(s, false) }
+        println("PERF classic recordScenePicture avg ${"%.1f".format((System.nanoTime() - t1) / 1e6 / n)} ms")
+        println("PERF paper drawables=${s.drawables.size} recordScenePicture avg ${"%.1f".format(ms)} ms")
     }
 }
