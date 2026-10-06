@@ -59,12 +59,29 @@ internal class Fig {
     private fun outlineP(): Paint? {
         if (style.shadowMode) return null
         outlinePaint.color = style.figEdgeColor
-        outlinePaint.strokeWidth = style.figEdgeWidth
+        outlinePaint.strokeWidth = if (silPass) style.silEdgeWidth else style.figEdgeWidth
+        outlinePaint.strokeCap = if (silPass) Paint.Cap.ROUND else Paint.Cap.BUTT
         return outlinePaint
     }
     val path = Path()
     private val box = RectF()
     private val colors = HashMap<String, Int>()
+
+    /** True during the wide outline pass of [sil] (OUT(): width 2.8 / 1.5, round caps). */
+    var silPass = false
+
+    /**
+     * sil() of scene.js: one-piece silhouette. First the shapes with a wide outline, then the same shapes filled
+     * without stroke. In shadow mode just the fill, once.
+     */
+    inline fun sil(body: () -> Unit) {
+        if (!PaperStyle.get().shadowMode) {
+            outline = true; silPass = true
+            try { body() } finally { outline = false; silPass = false }
+        }
+        outline = false
+        body()
+    }
 
     /** True while inside `<g OUTLINE>`: shapes get the soft outline unless st = false. */
     var outline = false
@@ -154,6 +171,10 @@ internal class Fig {
         val DUCK_SHADOW = Color.argb(89, 255, 255, 255) // rgba(255,255,255,.35)
         val CHEEK_FOX = Color.argb(89, 255, 120, 120)   // rgba(255,120,120,.35)
         val CHEEK_PERSON = Color.argb(89, 255, 110, 110) // rgba(255,110,110,.35)
+        val EAR_LAB = Color.argb(115, 40, 20, 5)    // rgba(40,20,5,.45)
+        val EAR_DACHS = Color.argb(128, 40, 20, 5)  // rgba(40,20,5,.5)
+        val CAT_EYE = 0xFF7FCF5A.toInt()
+        val CAT_NOSE = 0xFFE48A8A.toInt()
         val STRIPE = Color.argb(77, 0, 0, 0)    // rgba(0,0,0,.3)
     }
 }
@@ -241,83 +262,113 @@ internal fun Fig.raccoon(canvas: Canvas, cake: Boolean) = figure(canvas) {
 internal fun Fig.dog(canvas: Canvas, d: Drawable) = figure(canvas) {
     val col = c(figStr(d, "color", "#a0703f"))
     val dark = c("#111111"); val cream = c("#f3e6d3")
+    fun nose(x: Float, y: Float) = ell(x, y, 1.7f, 1.3f, c("#1c1418"), st = false)
+    fun eye(x: Float, y: Float) = circ(x, y, 1.2f, dark, false)
     shadow(15f, 3f, Fig.SHADOW)
-    outline = true
     when (figStr(d, "breed", "lab")) {
         "lab" -> {
-            path.rewind(); path.moveTo(14f, -14f); path.quadTo(22f, -22f, 19f, -26f); pathStroke(col, 3.5f, true)
-            rect(-12f, -9f, 4f, 9f, 2f, col); rect(8f, -9f, 4f, 9f, 2f, col)
-            ell(0f, -15f, 15f, 8f, col); circ(-14f, -22f, 7f, col)
-            ell(-19.5f, -20f, 4f, 3f, cream); circ(-12f, -23.5f, 1.1f, dark, false)
-            path.rewind(); path.moveTo(-12f, -27f); path.rQuadTo(-3f, 6f, -6f, 3f); pathFill(c("#4a2f17"))
+            sil {
+                ell(19f, -24f, 2.6f, 7.5f, col, 35f)
+                rect(-13f, -10f, 5f, 10f, 2.4f, col); rect(-5f, -10f, 5f, 10f, 2.4f, col)
+                rect(6f, -10f, 5f, 10f, 2.4f, col); rect(13f, -10f, 5f, 10f, 2.4f, col)
+                ell(3f, -16f, 16f, 8f, col); ell(-11f, -21f, 7f, 8f, col, -25f)
+                ell(-15f, -26f, 7.5f, 6.5f, col); ell(-22f, -23.5f, 5.5f, 3.8f, col)
+            }
+            ell(-22f, -22.6f, 4.6f, 2.8f, cream, st = false); nose(-25.5f, -24.2f); eye(-16.5f, -27.5f)
+            ell(-11f, -25f, 3.2f, 6f, Fig.EAR_LAB, 14f, st = false)
         }
         "dachs" -> {
-            path.rewind(); path.moveTo(20f, -11f); path.quadTo(26f, -15f, 24f, -19f); pathStroke(col, 3f, true)
-            rect(-17f, -6f, 4f, 6f, 2f, col); rect(-6f, -6f, 4f, 6f, 2f, col)
-            rect(8f, -6f, 4f, 6f, 2f, col); rect(16f, -6f, 4f, 6f, 2f, col)
-            ell(2f, -11f, 21f, 6.5f, col); circ(-20f, -15f, 6f, col)
-            ell(-25f, -13.5f, 3.6f, 2.6f, cream); circ(-19f, -16.5f, 1f, dark, false)
-            path.rewind(); path.moveTo(-17f, -20f); path.rQuadTo(4f, 2f, 3f, 9f); path.rQuadTo(-4f, -2f, -3f, -9f); path.close()
-            pathFill(c("#3b2a18"))
+            sil {
+                ell(25f, -16f, 2.4f, 6.5f, col, 40f)
+                rect(-18f, -7f, 5f, 7f, 2.4f, col); rect(-9f, -7f, 5f, 7f, 2.4f, col)
+                rect(10f, -7f, 5f, 7f, 2.4f, col); rect(18f, -7f, 5f, 7f, 2.4f, col)
+                ell(3f, -12f, 22f, 6.5f, col); ell(-17f, -15f, 6f, 7f, col)
+                ell(-20f, -18f, 6.8f, 6f, col); ell(-27f, -16f, 6f, 3.2f, col)
+            }
+            nose(-32f, -17.2f); eye(-21.5f, -19.5f)
+            ell(-17f, -15.5f, 3f, 6f, Fig.EAR_DACHS, 10f, st = false)
         }
         "spot" -> {
             val w = c("#f5f1e8")
-            path.rewind(); path.moveTo(14f, -15f); path.quadTo(22f, -23f, 19f, -27f); pathStroke(w, 3.5f, true)
-            rect(-12f, -9f, 4f, 9f, 2f, w); rect(8f, -9f, 4f, 9f, 2f, w)
-            ell(0f, -15f, 15f, 8f, w); circ(-14f, -22f, 7f, w)
-            ell(-3f, -17f, 5f, 4f, col, st = false); ell(7f, -13f, 4f, 3.2f, col, st = false)
-            ell(-17f, -25f, 3.4f, 4f, col, st = false)
-            ell(-19.5f, -20f, 4f, 3f, c("#ffffff")); circ(-12f, -23.5f, 1.1f, dark, false)
+            sil {
+                ell(19f, -24f, 2.6f, 7.5f, w, 35f)
+                rect(-13f, -10f, 5f, 10f, 2.4f, w); rect(-5f, -10f, 5f, 10f, 2.4f, w)
+                rect(6f, -10f, 5f, 10f, 2.4f, w); rect(13f, -10f, 5f, 10f, 2.4f, w)
+                ell(3f, -16f, 16f, 8f, w); ell(-11f, -21f, 7f, 8f, w, -25f)
+                ell(-15f, -26f, 7.5f, 6.5f, w); ell(-22f, -23.5f, 5.5f, 3.8f, w)
+            }
+            ell(2f, -18f, 5.5f, 4f, col, st = false); ell(11f, -14f, 4f, 3.2f, col, st = false)
+            ell(-17.5f, -28.5f, 3.2f, 3f, col, st = false)
+            nose(-25.5f, -24.2f); eye(-16.5f, -27.5f)
+            ell(-11f, -25f, 3.2f, 6f, col, 14f, st = false)
         }
         else -> { // poodle
-            val grey = c("#555555")
-            rect(-9f, -9f, 2.6f, 9f, 0f, grey); rect(7f, -9f, 2.6f, 9f, 0f, grey)
-            circ(-6f, -17f, 7.5f, col); circ(6f, -17f, 7.5f, col); circ(0f, -19f, 8f, col)
-            circ(15f, -22f, 4f, col); circ(-14f, -25f, 6.5f, col); circ(-20f, -27f, 4.2f, col)
-            circ(-9f, -29f, 4.2f, col)
-            ell(-19f, -23f, 3f, 2.4f, c("#3a2a30")); circ(-14f, -26f, 1f, dark, false)
+            sil {
+                rect(-8f, -10f, 2.8f, 10f, 0f, col); rect(-2f, -10f, 2.8f, 10f, 0f, col)
+                rect(5f, -10f, 2.8f, 10f, 0f, col); rect(11f, -10f, 2.8f, 10f, 0f, col)
+                circ(-7f, -5f, 3.8f, col); circ(12f, -5f, 3.8f, col)
+                ell(3f, -16f, 13f, 7.5f, col); circ(-8f, -20f, 7f, col)
+                circ(-13f, -26f, 6f, col); circ(-13f, -32.5f, 3.8f, col)
+                circ(-7f, -26f, 3.8f, col); ell(-20f, -24f, 4.4f, 3f, col)
+                cv.save(); cv.rotate(25f, 14f, -14f); rect(14f, -22f, 2f, 8f, 0f, col); cv.restore()
+                circ(19f, -24f, 4f, col)
+            }
+            nose(-23.5f, -24.4f); eye(-14.5f, -26.5f)
         }
     }
 }
 
 internal fun Fig.cat(canvas: Canvas, d: Drawable) = figure(canvas) {
     val col = c(figStr(d, "color", "#555555"))
-    val eye = c("#9be07a")
     val stripes = figBool(d, "stripes", false)
+    fun eyes(x1: Float, x2: Float, y: Float) {
+        ell(x1, y, 1.1f, 1.3f, Fig.CAT_EYE, st = false); ell(x2, y, 1.1f, 1.3f, Fig.CAT_EYE, st = false)
+        val k = c("#111111")
+        ell(x1, y, .4f, 1f, k, st = false); ell(x2, y, .4f, 1f, k, st = false)
+    }
+    fun nose(x: Float, y: Float) {
+        path.rewind(); path.moveTo(x, y); path.rLineTo(1.4f, 1.2f); path.rLineTo(1.4f, -1.2f); path.close()
+        pathFill(Fig.CAT_NOSE, st = false)
+    }
     shadow(11f, 3f, Fig.SHADOW)
-    outline = true
     if (figStr(d, "pose", "stand") == "stand") {
-        path.rewind(); path.moveTo(12f, -10f); path.quadTo(24f, -16f, 18f, -30f); pathStroke(col, 3f, true)
-        ell(0f, -10f, 12f, 7.5f, col); circ(-11f, -17f, 6f, col)
-        path.rewind()
-        path.moveTo(-16f, -21f); path.lineTo(-15f, -27f); path.lineTo(-11f, -22f); path.close()
-        path.moveTo(-7f, -22f); path.lineTo(-6f, -27f); path.lineTo(-3f, -20f); path.close()
-        pathFill(col)
-        circ(-13f, -17.5f, 1f, eye, false); circ(-9f, -17.5f, 1f, eye, false)
+        sil {
+            ell(19f, -19f, 2.4f, 10f, col, 28f)
+            rect(-9f, -8f, 4f, 8f, 2f, col); rect(-3f, -8f, 4f, 8f, 2f, col)
+            rect(6f, -8f, 4f, 8f, 2f, col); rect(11f, -8f, 4f, 8f, 2f, col)
+            ell(2f, -12f, 13f, 6.5f, col); ell(-9f, -16f, 5f, 6f, col)
+            circ(-12f, -19f, 6f, col)
+            path.rewind()
+            path.moveTo(-17f, -22f); path.lineTo(-16f, -29f); path.lineTo(-11f, -24f); path.close()
+            path.moveTo(-8f, -24f); path.lineTo(-6f, -30f); path.lineTo(-4f, -22f); path.close()
+            pathFill(col)
+        }
         if (stripes) {
             path.rewind()
-            path.moveTo(-4f, -17f); path.rLineTo(0f, 6f)
-            path.moveTo(1f, -17f); path.rLineTo(0f, 7f)
-            path.moveTo(6f, -16f); path.rLineTo(0f, 6f)
-            pathStroke(Fig.STRIPE, 1.2f)
+            path.moveTo(-3f, -17f); path.rLineTo(0f, 6f)
+            path.moveTo(2f, -18f); path.rLineTo(0f, 7f)
+            path.moveTo(7f, -17f); path.rLineTo(0f, 6f)
+            pathStroke(Fig.STRIPE, 1.3f)
         }
+        eyes(-14.4f, -9.8f, -19.4f); nose(-12.8f, -16.6f)
     } else {
-        path.rewind(); path.moveTo(7f, -3f); path.quadTo(18f, -3f, 16f, -12f); path.quadTo(15f, -16f, 11f, -12f)
-        pathStroke(col, 3f, true)
-        ell(0f, -10f, 8.5f, 10.5f, col); circ(0f, -26f, 6.6f, col)
-        path.rewind()
-        path.moveTo(-6.4f, -30f); path.lineTo(-5.6f, -36.5f); path.lineTo(-1.4f, -31f); path.close()
-        path.moveTo(6.4f, -30f); path.lineTo(5.6f, -36.5f); path.lineTo(1.4f, -31f); path.close()
-        pathFill(col)
-        circ(-2.6f, -26.4f, 1.1f, eye, false); circ(2.6f, -26.4f, 1.1f, eye, false)
-        ell(-3.6f, -1.6f, 3f, 1.8f, col); ell(3.6f, -1.6f, 3f, 1.8f, col)
+        sil {
+            ell(11f, -4f, 8f, 2.8f, col, -12f); circ(17f, -8f, 2.6f, col)
+            ell(0f, -11f, 8.8f, 11f, col); circ(0f, -26f, 6.8f, col)
+            path.rewind()
+            path.moveTo(-6.8f, -29.5f); path.lineTo(-5.8f, -37f); path.lineTo(-1.4f, -31f); path.close()
+            path.moveTo(6.8f, -29.5f); path.lineTo(5.8f, -37f); path.lineTo(1.4f, -31f); path.close()
+            pathFill(col)
+            ell(-3.8f, -1.5f, 3.2f, 2f, col); ell(3.8f, -1.5f, 3.2f, 2f, col)
+        }
         if (stripes) {
             path.rewind()
-            path.moveTo(-4f, -16f); path.rLineTo(0f, 7f)
-            path.moveTo(0f, -17f); path.rLineTo(0f, 8f)
-            path.moveTo(4f, -16f); path.rLineTo(0f, 7f)
-            pathStroke(Fig.STRIPE, 1.2f)
+            path.moveTo(-4f, -17f); path.rLineTo(0f, 7f)
+            path.moveTo(0f, -18f); path.rLineTo(0f, 8f)
+            path.moveTo(4f, -17f); path.rLineTo(0f, 7f)
+            pathStroke(Fig.STRIPE, 1.3f)
         }
+        eyes(-2.7f, 2.7f, -26.4f); nose(-1.2f, -23.6f)
     }
 }
 

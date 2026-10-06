@@ -6,7 +6,6 @@ import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Shader
 import android.graphics.Canvas
-import android.graphics.Path
 import android.graphics.Picture
 import de.wuselburg.core.Block
 import de.wuselburg.core.BlockType
@@ -30,8 +29,6 @@ private val C_CENTER = parseCssColor("rgba(255,255,255,.7)")      // #fff, opaci
 private val C_ZEBRA = parseCssColor("rgba(255,255,255,.75)")      // #fff, opacity .75
 private val C_WHITE = parseCssColor("#ffffff")
 private val C_WHITE_80 = parseCssColor("rgba(255,255,255,.8)")    // ripples, opacity .8
-private val C_WHITE_70 = parseCssColor("rgba(255,255,255,.7)")
-private val C_WHITE_90 = parseCssColor("rgba(255,255,255,.9)")    // fountain spray, opacity .9
 private val C_PARK = parseCssColor("#8fcf7a")
 private val C_TUFT = parseCssColor("#6fb85f")
 private val C_SAND = parseCssColor("#e9e1c8")
@@ -42,7 +39,11 @@ private val C_MARKET = parseCssColor("#f0dcae")
 private val C_PLAZA = parseCssColor("#e8e1d2")
 private val C_PLAZA_LINE = parseCssColor("rgba(0,0,0,.05)")
 private val C_BASIN = parseCssColor("#b9e3f2")
-private val C_FOUNTAIN = parseCssColor("#8cc9e0")
+private val C_FOUNTAIN_SHADOW = parseCssColor("rgba(45,30,15,.16)")
+private val C_STONE = parseCssColor("#f6f1e4")
+private val C_STONE_DARK = parseCssColor("#d9d2c0")
+private val C_STONE_MID = parseCssColor("#cfc8b5")
+private val C_SPRAY = parseCssColor("#e8f8ff")
 private val C_SIDEWALK = parseCssColor("#e6dfcf")
 private val C_CRUMB_BIG = parseCssColor("#c98a2b")
 private val C_CRUMB = parseCssColor("#e0a845")
@@ -254,16 +255,26 @@ private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String, paper: Boolea
             for (i in 1 until 8) { ink.path.moveTo(x + i * BW / 8f, y); ink.path.rLineTo(0f, BH) }
             for (j in 1 until 7) { ink.path.moveTo(x, y + j * BH / 7f); ink.path.rLineTo(BW, 0f) }
             ink.strokePath(c, C_PLAZA_LINE, 2f)
-            ink.circle(c, cx, cy, 62f, C_BASIN, o = false, sc = C_WHITE, sw = 8f)
+            ink.oval(c, cx + 2f, cy + 6f, 58f, 42f, C_FOUNTAIN_SHADOW, o = false)
+            ink.oval(c, cx, cy, 56f, 40f, C_STONE, o = false, sc = C_WHITE, sw = 2f)
+            ink.oval(c, cx, cy, 47f, 32f, C_WATER, o = false)
             ink.path.rewind()
-            ink.path.addCircle(cx, cy, 40f, Path.Direction.CW)
-            ink.strokePath(c, C_WHITE_70, 2f)
-            ink.circle(c, cx, cy, 14f, C_FOUNTAIN, o = false)
+            ink.path.moveTo(cx - 34f, cy + 8f); ink.q(8f, -4f, 16f, 0f)
+            ink.path.moveTo(cx + 14f, cy + 16f); ink.q(8f, -4f, 16f, 0f)
+            ink.path.moveTo(cx + 22f, cy - 4f); ink.q(6f, -3f, 12f, 0f)
+            ink.strokePath(c, C_WHITE_80, 1.6f)
+            ink.oval(c, cx, cy + 2f, 15f, 9f, C_STONE_DARK, o = false, sc = C_WHITE, sw = 1.6f)
+            ink.rect(c, cx - 4f, cy - 26f, 8f, 26f, C_STONE_MID, o = false, sc = C_WHITE, sw = 1.4f)
+            ink.oval(c, cx, cy - 24f, 19f, 7f, C_STONE, o = false, sc = C_WHITE, sw = 1.6f)
+            ink.oval(c, cx, cy - 25f, 14f, 4.6f, C_BASIN, o = false)
             ink.path.rewind()
-            ink.path.moveTo(cx, cy); ink.q(-18f, -30f, -30f, -8f)
-            ink.path.moveTo(cx, cy); ink.q(18f, -30f, 30f, -8f)
-            ink.path.moveTo(cx, cy); ink.q(0f, -38f, 0f, -40f)
-            ink.strokePath(c, C_WHITE_90, 3f, round = true)
+            ink.path.moveTo(cx, cy - 25f); ink.q(0f, -14f, 0f, -18f)
+            ink.path.moveTo(cx, cy - 25f); ink.q(-9f, -12f, -15f, -4f)
+            ink.path.moveTo(cx, cy - 25f); ink.q(9f, -12f, 15f, -4f)
+            ink.strokePath(c, C_SPRAY, 2.4f, round = true)
+            ink.circle(c, cx - 17f, cy - 22f, 1.6f, C_WHITE, o = false)
+            ink.circle(c, cx + 17f, cy - 22f, 1.6f, C_WHITE, o = false)
+            ink.circle(c, cx, cy - 46f, 1.8f, C_WHITE, o = false)
         }
         BlockType.HOUSES -> {
             if (paper) ink.rect(c, x, y, BW, BH, C_HOUSE_GRASS, 14f, o = false, sc = sc, sw = sw)

@@ -19,7 +19,7 @@ import java.io.FileOutputStream
 
 @RunWith(AndroidJUnit4::class)
 class RenderShotsTest {
-    private val outDir = File("/tmp/claude-0/-home-user-wo-ist-walter/34a5a771-de7d-5e7d-81c8-aa5008781eb4/scratchpad/android-shots3")
+    private val outDir = File("/tmp/claude-0/-home-user-wo-ist-walter/34a5a771-de7d-5e7d-81c8-aa5008781eb4/scratchpad/android-shots4")
     private val big = 6000
     private val k = big / 2180.0
 
@@ -107,6 +107,33 @@ class RenderShotsTest {
             }
             save(sheet, "z_persons_sheet.png")
             println("PERSONS picked ${picks.size}")
+        }
+    }
+
+    @Test fun animals() {
+        val s = scene("fips3")
+        for (paper in listOf(true, false)) {
+            val bmp = renderSceneToBitmap(s, big, paper = paper, grain = if (paper) grain else null)
+            val picks = ArrayList<Drawable>()
+            val seen = HashSet<String>()
+            for (d in s.drawables) {
+                val key = when (d.kind) {
+                    "dog" -> "dog" + d.props["breed"]
+                    "cat" -> "cat" + d.props["pose"] + d.props["stripes"]
+                    else -> continue
+                }
+                if (seen.add(key)) picks.add(d)
+            }
+            val cell = 90.0; val cw = (cell * k).toInt(); val ch = (cell * k).toInt()
+            val cols = 4; val rows = (picks.size + cols - 1) / cols
+            val sheet = Bitmap.createBitmap(cols * cw, rows * ch, Bitmap.Config.ARGB_8888)
+            val cv = Canvas(sheet)
+            picks.forEachIndexed { i, p ->
+                val c = crop(bmp, p.x, p.y - 20 * p.scale, cell / 2, cell / 2)
+                cv.drawBitmap(c, null, Rect((i % cols) * cw, (i / cols) * ch, (i % cols) * cw + cw, (i / cols) * ch + ch), null)
+            }
+            save(sheet, if (paper) "animals.png" else "animals_classic.png")
+            println("ANIMALS ${picks.size} $seen")
         }
     }
 

@@ -17,6 +17,8 @@ internal class PaperStyle {
 
     val figEdgeColor: Int get() = if (paper) EDGE_PAPER else EDGE_FIG_CLASSIC
     val figEdgeWidth: Float get() = if (paper) 1.3f else 0.7f
+    /** OUT() of scene.js: wide outline of one-piece silhouettes (dogs, cats). Colour is [figEdgeColor]. */
+    val silEdgeWidth: Float get() = if (paper) 2.8f else 1.5f
     val houseEdgeColor: Int get() = if (paper) EDGE_PAPER else EDGE_HOUSE_CLASSIC
     val houseEdgeWidth: Float get() = if (paper) 1.6f else 1f
 

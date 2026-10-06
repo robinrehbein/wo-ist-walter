@@ -335,7 +335,7 @@ object SceneBuilder {
                     BlockType.PARK -> {
                         val px = x + 120 + r() * 180
                         val py = y + 120 + r() * 140
-                        val pond = Pond(px, py, 70.0, 44.0)
+                        val pond = Pond(px, py, 60.0, 40.0)
                         ponds += pond
                         obstacles += Obstacle(px, py, 55.0)
                         val dots = ArrayList<Dot>()
@@ -347,9 +347,17 @@ object SceneBuilder {
                             val a = r(); val c = r()
                             dots += Dot(x + 14 + a * (BLOCK_W - 28), y + 14 + c * (BLOCK_H - 28), 0.0, "#6fb85f", "tuft")
                         }
-                        for (i in 0 until 7) { val a = r(); val c = r(); addTree(x + 40 + a * (BLOCK_W - 80), y + 80 + c * (BLOCK_H - 90)) }
+                        // keep trees and bushes out of the water (scene.js dry())
+                        fun dry(tx: Double, ty: Double, m: Double): Pair<Double, Double> {
+                            val dx = tx - px; val dy = ty - py
+                            val q = hypot(dx / (pond.rx + m), dy / (pond.ry + m))
+                            if (q >= 1) return tx to ty
+                            if (q < 1e-6) return tx to (py + pond.ry + m)
+                            return (px + dx / q * 1.02) to (py + dy / q * 1.02)
+                        }
+                        for (i in 0 until 7) { val a = r(); val c = r(); val (tx, ty) = dry(x + 40 + a * (BLOCK_W - 80), y + 80 + c * (BLOCK_H - 90), 16.0); addTree(tx, ty) }
                         for (i in 0 until 2) { val a = r(); addBench(x + 70 + a * (BLOCK_W - 140), y + BLOCK_H - 26) }
-                        for (i in 0 until 3) { val a = r(); val c = r(); addBush(x + 30 + a * (BLOCK_W - 60), y + 40 + c * (BLOCK_H - 80)) }
+                        for (i in 0 until 3) { val a = r(); val c = r(); val (bx, by) = dry(x + 30 + a * (BLOCK_W - 60), y + 40 + c * (BLOCK_H - 80), 12.0); addBush(bx, by) }
                         for (i in 0 until 3) {
                             val a = r(); val c = r()
                             drawables += d("duck", px - 40 + a * 80, py - 14 + c * 28, 0.9, a < 0.5)

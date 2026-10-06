@@ -95,7 +95,7 @@ data class House(
     val curtains: List<String>,
 )
 
-/** Park pond ellipse (rx 70, ry 44). */
+/** Park pond ellipse (rx 60, ry 40). */
 data class Pond(val cx: Double, val cy: Double, val rx: Double, val ry: Double)
 
 /** Ground speckle. shape "circle" (radius [r], [color]) or "tuft" (grass tuft, r = 0). */

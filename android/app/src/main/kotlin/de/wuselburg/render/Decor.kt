@@ -319,7 +319,9 @@ internal fun Ink.house(c: Canvas, hs: House, mood: String) {
             }
         }
         val noShop = hs.shop.isEmpty()
+        val hasShop = hs.bakery || hs.shop.isNotEmpty()
         for (f in 0 until floors) {
+            if (hasShop && floors == 2 && f == 1) continue   // shop sign instead of ground-floor windows
             for (cI in 0 until 2) {
                 val wx = x + 16f + cI * (w - 32f - 24f)
                 val wy = top + 16f + f * 56f
