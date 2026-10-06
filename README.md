@@ -43,3 +43,11 @@ ein weiterer Eintrag in `LEVELS` (Seed, Menge an Figuren, Doppelgänger-Typen, V
 - Koop-Modus für zwei Spieler auf einem Tablet, tägliches Rätsel.
 - Native Verpackung (z. B. Capacitor), Ton und Musik, Kinderschutz-Konformität (COPPA/DSGVO).
 - Vor einem Release: Namen und Figuren markenrechtlich prüfen (DPMA/EUIPO).
+
+## Native Android-Prototyp
+
+Neben der Web-Version gibt es einen nativen Android-Prototyp (Kotlin, Jetpack Compose, Canvas – kein WebView).
+Er setzt die Level, Figuren und Texte dieses Prototyps um und läuft auf Handy und Tablet, hoch und quer.
+
+- Anleitung, Build und Aufbau: [android/README.md](android/README.md)
+- Fertige Test-APK zum Installieren: [dist/wuselburg-debug.apk](dist/wuselburg-debug.apk)
