@@ -3,6 +3,7 @@ package de.wuselburg.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -79,6 +80,26 @@ fun MenuScreen(vm: GameViewModel) {
             Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 vm.levels.forEach { level ->
                     LevelCard(level, vm.bestStars[level.id] ?: 0) { vm.startLevel(level.id) }
+                }
+            }
+            Surface(
+                onClick = vm::togglePaperStyle,
+                modifier = Modifier
+                    .padding(top = 18.dp)
+                    .fillMaxWidth()
+                    .heightIn(min = 48.dp),
+                shape = RoundedCornerShape(14.dp),
+                color = Color.White,
+                shadowElevation = 3.dp,
+            ) {
+                Box(Modifier.padding(horizontal = 16.dp, vertical = 12.dp), contentAlignment = Alignment.Center) {
+                    Text(
+                        stringResource(if (vm.paperStyle) R.string.style_paper else R.string.style_classic),
+                        color = WuselColors.TealDark,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                    )
                 }
             }
             Text(

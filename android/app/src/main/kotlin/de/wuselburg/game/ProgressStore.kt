@@ -6,11 +6,18 @@ import android.content.Context
 interface ProgressStore {
     fun load(): Map<String, Int>
     fun saveBest(levelId: String, stars: Int)
+
+    /** Paper cut-out look (default) or classic dark outline (web: localStorage 'wuselburg.style'). */
+    fun loadPaperStyle(): Boolean = true
+    fun savePaperStyle(paper: Boolean) {}
 }
 
 /** Non-persistent store, default for tests. */
 class MemoryProgressStore(initial: Map<String, Int> = emptyMap()) : ProgressStore {
     private val data = initial.toMutableMap()
+    private var paper = true
+    override fun loadPaperStyle(): Boolean = paper
+    override fun savePaperStyle(paper: Boolean) { this.paper = paper }
     override fun load(): Map<String, Int> = data.toMap()
     override fun saveBest(levelId: String, stars: Int) {
         data[levelId] = maxOf(data[levelId] ?: 0, stars)
@@ -27,6 +34,16 @@ class SharedPrefsProgressStore(context: Context) : ProgressStore {
         emptyMap()
     }
 
+    override fun loadPaperStyle(): Boolean = try {
+        prefs.getBoolean(KEY_PAPER, true)
+    } catch (e: Exception) {
+        true
+    }
+
+    override fun savePaperStyle(paper: Boolean) {
+        try { prefs.edit().putBoolean(KEY_PAPER, paper).apply() } catch (e: Exception) { /* nicety */ }
+    }
+
     override fun saveBest(levelId: String, stars: Int) {
         try {
             val best = maxOf(prefs.getInt(levelId, 0), stars)
@@ -38,5 +55,6 @@ class SharedPrefsProgressStore(context: Context) : ProgressStore {
 
     private companion object {
         const val FILE = "wuselburg.v1"
+        const val KEY_PAPER = "style.paper" // Boolean, not an Int: ignored by load()
     }
 }

@@ -6,6 +6,8 @@
     <string name="menu_title">Wuselburg</string>
     <string name="menu_tagline">Wo steckt Fips? Such ihn im Gewimmel und löse die Fälle der Stadt!</string>
     <string name="menu_hint">Tipp: Mit zwei Fingern zoomen, mit einem Finger verschieben.</string>
+    <string name="style_paper">Stil: Papier ✂️ (tippen zum Wechseln)</string>
+    <string name="style_classic">Stil: Klassisch (tippen zum Wechseln)</string>
     <string name="stars_description">%1$d von 3 Sternen</string>
 
     <!-- Spiel -->

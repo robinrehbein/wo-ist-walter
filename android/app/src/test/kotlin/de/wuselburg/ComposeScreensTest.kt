@@ -21,7 +21,7 @@ import org.robolectric.annotation.Config
 class ComposeScreensTest {
     @get:Rule val rule = createComposeRule()
 
-    private fun vm() = GameViewModel(pictureRecorder = { Picture() })
+    private fun vm() = GameViewModel(pictureRecorder = { _, _ -> Picture() })
 
     @Test fun menuShowsGermanTexts() {
         val vm = vm()

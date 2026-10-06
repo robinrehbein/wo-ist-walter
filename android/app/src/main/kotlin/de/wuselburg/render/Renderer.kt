@@ -1,6 +1,10 @@
 package de.wuselburg.render
 
 import android.graphics.Bitmap
+import android.graphics.BitmapShader
+import android.graphics.Matrix
+import android.graphics.Paint
+import android.graphics.Shader
 import android.graphics.Canvas
 import android.graphics.Path
 import android.graphics.Picture
@@ -42,6 +46,9 @@ private val C_FOUNTAIN = parseCssColor("#8cc9e0")
 private val C_SIDEWALK = parseCssColor("#e6dfcf")
 private val C_CRUMB_BIG = parseCssColor("#c98a2b")
 private val C_CRUMB = parseCssColor("#e0a845")
+private val C_ROAD_FOLD = parseCssColor("rgba(255,250,240,.28)")
+private val C_EDGE = PaperStyle.EDGE_PAPER
+private val C_BLOCK_SHADOW = parseCssColor("rgba(45,30,15,.30)")
 private val C_EVENING = parseCssColor("rgba(255,140,60,.16)")
 
 private val ROAD = WorldLayout.ROAD.toFloat()
@@ -52,12 +59,16 @@ private val ROWS = WorldLayout.ROWS
 private val W = WORLD_W.toFloat()
 private val H = WORLD_H.toFloat()
 
-/** Records the whole world (0..WORLD_W x 0..WORLD_H, world coordinates) ONCE per level. */
-fun recordScenePicture(scene: Scene): Picture {
+/**
+ * Records the whole world (0..WORLD_W x 0..WORLD_H, world coordinates) ONCE per level.
+ * [paper] = Papier-Optik (white cut edges, cast shadows, grain), false = the classic dark-outline look.
+ * [grain] is the 256x256 paper-grain tile (null = no grain); it is referenced by the Picture, do not recycle it.
+ */
+fun recordScenePicture(scene: Scene, paper: Boolean = true, grain: Bitmap? = null): Picture {
     val picture = Picture()
     val canvas = picture.beginRecording(WORLD_W.toInt(), WORLD_H.toInt())
     try {
-        drawScene(canvas, scene)
+        drawScene(canvas, scene, paper, grain)
     } finally {
         picture.endRecording()
     }
@@ -65,27 +76,69 @@ fun recordScenePicture(scene: Scene): Picture {
 }
 
 /** Renders the scene straight into a software bitmap [widthPx] wide (aspect of the world). Used by tests. */
-fun renderSceneToBitmap(scene: Scene, widthPx: Int): Bitmap {
+fun renderSceneToBitmap(scene: Scene, widthPx: Int, paper: Boolean = true, grain: Bitmap? = null): Bitmap {
     val k = widthPx / WORLD_W.toFloat()
     val bitmap = Bitmap.createBitmap(widthPx, (WORLD_H * k).toInt().coerceAtLeast(1), Bitmap.Config.ARGB_8888)
     val canvas = Canvas(bitmap)
     canvas.scale(k, k)
-    drawScene(canvas, scene)
+    drawScene(canvas, scene, paper, grain)
     return bitmap
 }
 
-/** Layers of sceneToSvg(): background, crumbs, drawables (painter order as given), evening tint. */
-internal fun drawScene(c: Canvas, scene: Scene) {
+/**
+ * Layers of sceneToSvg(): background, houses (paper: own pass), crumbs, drawables (painter order as given),
+ * evening tint, paper grain. In paper mode the houses and the drawables each get a cast-shadow pass first
+ * (the web's feDropShadow dx 1.8 dy 2.8, #2a1d10 @ .34, here without blur): the group is drawn once as a flat
+ * silhouette, offset, inside ONE alpha layer (so overlaps do not darken twice), then drawn normally.
+ */
+internal fun drawScene(c: Canvas, scene: Scene, paper: Boolean = true, grain: Bitmap? = null) {
     val ink = Ink.get()
-    val mood = scene.mood
-    drawBackground(c, ink, scene, mood)
-    for (cr in scene.crumbs) {
-        if (cr.big) ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 3.4f, C_CRUMB_BIG, o = false)
-        else ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 2.4f, C_CRUMB, o = false)
+    val style = PaperStyle.get()
+    val oldPaper = style.paper
+    style.paper = paper
+    style.shadowMode = false
+    try {
+        val mood = scene.mood
+        drawBackground(c, ink, scene, mood, paper)
+        if (paper) {
+            castShadowed(c, style) { for (b in scene.blocks) if (b.type == BlockType.HOUSES) for (hd in b.houses) ink.house(c, hd, mood) }
+        }
+        for (cr in scene.crumbs) {
+            if (cr.big) ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 3.4f, C_CRUMB_BIG, o = false)
+            else ink.circle(c, f1(cr.x.toFloat()), f1(cr.y.toFloat()), 2.4f, C_CRUMB, o = false)
+        }
+        if (paper) castShadowed(c, style) { for (d in scene.drawables) drawPlaced(c, d, mood) }
+        else for (d in scene.drawables) drawPlaced(c, d, mood)
+        if (mood == "evening") ink.rect(c, 0f, 0f, W, H, C_EVENING, o = false)
+        if (paper && grain != null) drawGrain(c, grain)
+    } finally {
+        style.shadowMode = false
+        style.paper = oldPaper
     }
-    for (d in scene.drawables) drawPlaced(c, d, mood)
-    if (mood == "evening") ink.rect(c, 0f, 0f, W, H, C_EVENING, o = false)
 }
+
+/** Draws [body] as shadow silhouette (offset, one alpha layer), then again normally. */
+private inline fun castShadowed(c: Canvas, style: PaperStyle, body: () -> Unit) {
+    val layer = c.saveLayerAlpha(0f, 0f, W + 8f, H + 8f, PaperStyle.SHADOW_ALPHA)
+    c.translate(PaperStyle.SHADOW_DX, PaperStyle.SHADOW_DY)
+    style.shadowMode = true
+    try { body() } finally { style.shadowMode = false }
+    c.restoreToCount(layer)
+    body()
+}
+
+/** The 256 px tile is shown at 384 world units, repeated over the whole world (pattern in sceneToSvg). */
+private fun drawGrain(c: Canvas, grain: Bitmap) {
+    val shader = BitmapShader(grain, Shader.TileMode.REPEAT, Shader.TileMode.REPEAT)
+    val m = Matrix()
+    m.setScale(GRAIN_WORLD / grain.width, GRAIN_WORLD / grain.height)
+    shader.setLocalMatrix(m)
+    val p = Paint(Paint.FILTER_BITMAP_FLAG)
+    p.shader = shader
+    c.drawRect(0f, 0f, W, H, p)
+}
+
+private const val GRAIN_WORLD = 384f
 
 /** drawableSvg(): translate(f1(x) f1(y)) scale(flip ? -s : s, s), then the kind's own drawing. */
 private fun drawPlaced(c: Canvas, d: Drawable, mood: String) {
@@ -97,7 +150,18 @@ private fun drawPlaced(c: Canvas, d: Drawable, mood: String) {
     c.restore()
 }
 
-private fun drawBackground(c: Canvas, ink: Ink, scene: Scene, mood: String) {
+private fun drawBackground(c: Canvas, ink: Ink, scene: Scene, mood: String, paper: Boolean) {
+    if (paper) {
+        // paper: the blocks lie as layers on the asphalt, the road edges are light strips
+        ink.rect(c, 0f, 0f, W, H, C_ASPHALT, o = false)
+        for (k in 0..COLS) ink.rect(c, k * (BW + ROAD), 0f, ROAD, H, C_ROAD_FOLD, o = false)
+        for (j in 0..ROWS) ink.rect(c, 0f, j * (BH + ROAD), W, ROAD, C_ROAD_FOLD, o = false)
+    } else drawClassicRoads(c, ink, scene)
+    drawMarkings(c, ink)
+    for (b in scene.blocks) drawBlock(c, ink, b, mood, paper)
+}
+
+private fun drawClassicRoads(c: Canvas, ink: Ink, scene: Scene) {
     ink.rect(c, 0f, 0f, W, H, C_GRASS, o = false)
     // grass under the house blocks
     for (b in scene.blocks) if (b.type == BlockType.HOUSES) {
@@ -119,6 +183,9 @@ private fun drawBackground(c: Canvas, ink: Ink, scene: Scene, mood: String) {
     for (k in 0..COLS) for (j in 0..ROWS) {
         ink.rect(c, k * (BW + ROAD), j * (BH + ROAD), ROAD, ROAD, C_ASPHALT, o = false)
     }
+}
+
+private fun drawMarkings(c: Canvas, ink: Ink) {
     // dashed centre lines
     for (k in 0..COLS) {
         val x = k * (BW + ROAD) + ROAD / 2f
@@ -138,14 +205,16 @@ private fun drawBackground(c: Canvas, ink: Ink, scene: Scene, mood: String) {
             if (k < COLS) ink.rect(c, x0 + ROAD + 6f, y0 + 10f + i * 18f, 18f, 9f, C_ZEBRA, o = false)
         }
     }
-    for (b in scene.blocks) drawBlock(c, ink, b, mood)
 }
 
-private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String) {
+private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String, paper: Boolean) {
     val x = b.x.toFloat(); val y = b.y.toFloat()
+    val sc = if (paper) C_EDGE else 0
+    val sw = if (paper) 2f else 0f
+    if (paper) ink.rect(c, x + 3f, y + 5f, BW, BH, C_BLOCK_SHADOW, if (b.type == BlockType.PARK) 26f else 14f, o = false)
     when (b.type) {
         BlockType.PARK -> {
-            ink.rect(c, x, y, BW, BH, C_PARK, 26f, o = false)
+            ink.rect(c, x, y, BW, BH, C_PARK, 26f, o = false, sc = sc, sw = sw)
             var tufts = false
             ink.path.rewind()
             for (d in b.dots) if (d.shape == "tuft") {
@@ -175,12 +244,12 @@ private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String) {
             }
         }
         BlockType.MARKET -> {
-            ink.rect(c, x, y, BW, BH, C_MARKET, 14f, o = false)
+            ink.rect(c, x, y, BW, BH, C_MARKET, 14f, o = false, sc = sc, sw = sw)
             for (d in b.dots) ink.circle(c, f1(d.x.toFloat()), f1(d.y.toFloat()), d.r.toFloat(), ink.col(d.color), o = false)
         }
         BlockType.PLAZA -> {
             val cx = x + BW / 2f; val cy = y + BH / 2f
-            ink.rect(c, x, y, BW, BH, C_PLAZA, 14f, o = false)
+            ink.rect(c, x, y, BW, BH, C_PLAZA, 14f, o = false, sc = sc, sw = sw)
             ink.path.rewind()
             for (i in 1 until 8) { ink.path.moveTo(x + i * BW / 8f, y); ink.path.rLineTo(0f, BH) }
             for (j in 1 until 7) { ink.path.moveTo(x, y + j * BH / 7f); ink.path.rLineTo(BW, 0f) }
@@ -197,11 +266,12 @@ private fun drawBlock(c: Canvas, ink: Ink, b: Block, mood: String) {
             ink.strokePath(c, C_WHITE_90, 3f, round = true)
         }
         BlockType.HOUSES -> {
+            if (paper) ink.rect(c, x, y, BW, BH, C_HOUSE_GRASS, 14f, o = false, sc = sc, sw = sw)
             ink.rect(c, x, y + BH - 78f, BW, 78f, C_SIDEWALK, 10f, o = false)
             ink.path.rewind()
             for (i in 0 until 12) { ink.path.moveTo(x + 10f + i * 35f, y + BH - 78f); ink.path.rLineTo(0f, 78f) }
             ink.strokePath(c, C_PLAZA_LINE, 1.5f)
-            for (hd in b.houses) ink.house(c, hd, mood)
+            if (!paper) for (hd in b.houses) ink.house(c, hd, mood)
         }
     }
 }

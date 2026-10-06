@@ -51,9 +51,16 @@ internal class Fig {
     private val linePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply { style = Paint.Style.STROKE }
     private val outlinePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.STROKE
-        color = Color.argb(82, 30, 20, 40) // rgba(30,20,40,.32)
-        strokeWidth = 0.7f
         strokeJoin = Paint.Join.ROUND
+    }
+    private val style = PaperStyle.get()
+
+    /** Outline paint of the current style (OL() of scene.js); null in shadow mode (silhouette only). */
+    private fun outlineP(): Paint? {
+        if (style.shadowMode) return null
+        outlinePaint.color = style.figEdgeColor
+        outlinePaint.strokeWidth = style.figEdgeWidth
+        return outlinePaint
     }
     val path = Path()
     private val box = RectF()
@@ -67,7 +74,7 @@ internal class Fig {
         try { Color.parseColor(hex) } catch (e: IllegalArgumentException) { 0xFF888888.toInt() }
     }
 
-    private fun fillWith(color: Int): Paint = fillPaint.also { it.color = color }
+    private fun fillWith(color: Int): Paint = fillPaint.also { it.color = style.tone(color) }
 
     // --- filled shapes (+ outline)
 
@@ -76,31 +83,31 @@ internal class Fig {
         val k = cv
         if (rot != 0f) { k.save(); k.rotate(rot, cx, cy) }
         k.drawOval(box, fillWith(fill))
-        if (outline && st) k.drawOval(box, outlinePaint)
+        if (outline && st) outlineP()?.let { k.drawOval(box, it) }
         if (rot != 0f) k.restore()
     }
 
     fun rect(x: Float, y: Float, w: Float, h: Float, rx: Float, fill: Int, st: Boolean = true) {
         box.set(x, y, x + w, y + h)
         cv.drawRoundRect(box, rx, rx, fillWith(fill))
-        if (outline && st) cv.drawRoundRect(box, rx, rx, outlinePaint)
+        if (outline && st) outlineP()?.let { cv.drawRoundRect(box, rx, rx, it) }
     }
 
     fun circ(cx: Float, cy: Float, r: Float, fill: Int, st: Boolean = true) {
         cv.drawCircle(cx, cy, r, fillWith(fill))
-        if (outline && st) cv.drawCircle(cx, cy, r, outlinePaint)
+        if (outline && st) outlineP()?.let { cv.drawCircle(cx, cy, r, it) }
     }
 
     /** Fills [path] (and outlines it). */
     fun pathFill(fill: Int, st: Boolean = true) {
         cv.drawPath(path, fillWith(fill))
-        if (outline && st) cv.drawPath(path, outlinePaint)
+        if (outline && st) outlineP()?.let { cv.drawPath(path, it) }
     }
 
     // --- own strokes (fill="none" with explicit stroke: the outline does not apply)
 
     private fun lineWith(color: Int, w: Float, round: Boolean): Paint = linePaint.also {
-        it.color = color; it.strokeWidth = w
+        it.color = style.tone(color); it.strokeWidth = w
         it.strokeCap = if (round) Paint.Cap.ROUND else Paint.Cap.BUTT
         it.strokeJoin = Paint.Join.MITER
     }

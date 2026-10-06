@@ -18,6 +18,7 @@ import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.setMain
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -37,7 +38,7 @@ class GameViewModelTest {
     @After fun tearDown() = Dispatchers.resetMain()
 
     private fun vm() = GameViewModel(
-        pictureRecorder = { Picture() },
+        pictureRecorder = { _, _ -> Picture() },
         store = store,
         buildDispatcher = dispatcher,
         uptimeMs = { dispatcher.scheduler.currentTime },
@@ -135,5 +136,25 @@ class GameViewModelTest {
         val t = vm.elapsedSeconds
         advance(5000)
         assertEquals(t, vm.elapsedSeconds)
+    }
+
+    @Test fun styleFlagIsPersistedAndPassedToTheRecorderAtLevelStart() {
+        val seen = ArrayList<Boolean>()
+        fun vmWith(st: MemoryProgressStore) = GameViewModel(
+            pictureRecorder = { _, paper -> seen.add(paper); Picture() },
+            store = st,
+            buildDispatcher = dispatcher,
+            uptimeMs = { dispatcher.scheduler.currentTime },
+            random = Random(1),
+        )
+        val st = MemoryProgressStore()
+        val vm = vmWith(st)
+        assertTrue("default is paper", vm.paperStyle)
+        vm.startLevel("fips1"); dispatcher.scheduler.runCurrent()
+        vm.togglePaperStyle() // changes only the next level
+        assertFalse(st.loadPaperStyle())
+        vm.startLevel("fips1"); dispatcher.scheduler.runCurrent()
+        assertEquals(listOf(true, false), seen)
+        assertFalse("restored from store", vmWith(st).paperStyle)
     }
 }

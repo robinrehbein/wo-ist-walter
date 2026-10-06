@@ -1,6 +1,7 @@
 // OWNER: UI (game flow state holder; port of game.js state, menu, timer, hints, finish)
 package de.wuselburg.game
 
+import android.graphics.Bitmap
 import android.graphics.Picture
 import android.os.SystemClock
 import androidx.compose.runtime.derivedStateOf
@@ -69,7 +70,9 @@ fun formatTime(seconds: Int): String = "${seconds / 60}:${(seconds % 60).toStrin
 class GameViewModel(
     val levels: List<LevelDef> = Levels.all,
     private val sceneBuilder: (LevelDef) -> Scene = { SceneBuilder.build(it) },
-    private val pictureRecorder: (Scene) -> Picture = { recordScenePicture(it) },
+    /** Paper-grain tile for the Papier-Optik (decoded lazily on the build thread); null = no grain. */
+    private val grainProvider: () -> Bitmap? = { null },
+    private val pictureRecorder: (Scene, Boolean) -> Picture = { scene, paper -> recordScenePicture(scene, paper, grainProvider()) },
     private val store: ProgressStore = MemoryProgressStore(),
     private val buildDispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val uptimeMs: () -> Long = { SystemClock.uptimeMillis() },
@@ -85,6 +88,7 @@ class GameViewModel(
     var goal by mutableStateOf<Goal?>(null); private set
     var effects by mutableStateOf<List<WorldEffect>>(emptyList()); private set
     var bestStars by mutableStateOf(store.load()); private set
+    var paperStyle by mutableStateOf(store.loadPaperStyle()); private set
 
     private var elapsedMs by mutableLongStateOf(0L)
     val elapsedSeconds: Int by derivedStateOf { (elapsedMs / 1000).toInt() }
@@ -125,6 +129,12 @@ class GameViewModel(
 
     // ------------------------------------------------------------ Navigation
 
+    /** Menu switch; takes effect when the next level starts. */
+    fun togglePaperStyle() {
+        paperStyle = !paperStyle
+        store.savePaperStyle(paperStyle)
+    }
+
     fun startLevel(id: String) {
         val def = levels.firstOrNull { it.id == id } ?: return
         cancelJobs()
@@ -138,13 +148,14 @@ class GameViewModel(
         transition = false
         loading = true
         screen = Screen.GAME
+        val paper = paperStyle // read at level start
         syncTimer()
 
         buildJob = viewModelScope.launch {
             try {
                 val built = withContext(buildDispatcher) {
                     val s = sceneBuilder(def)
-                    s to pictureRecorder(s)
+                    s to pictureRecorder(s, paper)
                 }
                 scene = built.first
                 camera.reset() // before the picture is visible; deferred if the viewport is unknown

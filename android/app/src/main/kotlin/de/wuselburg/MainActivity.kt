@@ -25,6 +25,14 @@ import de.wuselburg.ui.GameScreen
 import de.wuselburg.ui.MenuScreen
 import de.wuselburg.ui.theme.WuselburgTheme
 
+/** Decodes the 256x256 paper-grain tile (no density scaling, it lives in drawable-nodpi); null on failure. */
+private fun loadPaperGrain(context: android.content.Context): android.graphics.Bitmap? = try {
+    val opts = android.graphics.BitmapFactory.Options().apply { inScaled = false }
+    android.graphics.BitmapFactory.decodeResource(context.resources, R.drawable.paper_grain, opts)
+} catch (e: Exception) {
+    null
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         // Transparent bars with dark icons: the app is light-only.
@@ -41,7 +49,9 @@ class MainActivity : ComponentActivity() {
 private fun WuselburgApp() {
     val appContext = LocalContext.current.applicationContext
     val factory = remember {
-        viewModelFactory { initializer { GameViewModel(store = SharedPrefsProgressStore(appContext)) } }
+        viewModelFactory { initializer {
+            GameViewModel(store = SharedPrefsProgressStore(appContext), grainProvider = { loadPaperGrain(appContext) })
+        } }
     }
     val vm: GameViewModel = viewModel(factory = factory)
 

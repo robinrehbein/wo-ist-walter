@@ -10,10 +10,6 @@ import de.wuselburg.core.House
  * translate(x, y) scale(+-s, s) before calling.
  */
 
-private val OL_FIG = parseCssColor("rgba(30,20,40,.32)")
-private val OL_HOUSE = parseCssColor("rgba(30,20,40,.28)")
-private const val OL_FIG_W = 0.7f
-private const val OL_HOUSE_W = 1f
 
 private val WHITE = parseCssColor("#ffffff")
 private val SHADOW_14 = parseCssColor("rgba(0,0,0,.14)")
@@ -41,7 +37,7 @@ internal fun drawDecorDrawable(canvas: Canvas, d: Drawable, mood: String): Boole
 // ---------------------------------------------------------------- Bäume
 internal fun Ink.tree(c: Canvas, type: String, crown: Int) {
     oval(c, 0f, 2f, 20f, 5f, SHADOW_14, o = false)
-    outlined(OL_FIG, OL_FIG_W) {
+    outlinedFig {
         if (type == "pine") {
             rect(c, -3.5f, -22f, 7f, 22f, col("#7a4e2d"), 2f)
             tri(c, -22f, -18f, 0f, -52f, 22f, -18f, col("#2f7d4a"))
@@ -86,7 +82,7 @@ internal fun Ink.tree(c: Canvas, type: String, crown: Int) {
 // ---------------------------------------------------------------- Stände
 internal fun Ink.stall(c: Canvas, awning: Int, goods: String) {
     oval(c, 0f, 4f, 52f, 7f, SHADOW_12, o = false)
-    outlined(OL_FIG, OL_FIG_W) {
+    outlinedFig {
         val pole = col("#8a6a45")
         rect(c, -42f, -44f, 5f, 44f, pole)
         rect(c, 37f, -44f, 5f, 44f, pole)
@@ -153,7 +149,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         "lamp" -> {
             oval(c, 0f, 1f, 6f, 2f, col("rgba(0,0,0,.15)"), o = false)
             if (evening) circle(c, 0f, -60f, 22f, col("rgba(255,220,120,.30)"), o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 rect(c, -2f, -58f, 4f, 58f, col("#4a4f57"))
                 rect(c, -5f, -4f, 10f, 4f, col("#3a3f47"), 1f)
                 quad(c, -6f, -58f, 6f, -58f, 4f, -66f, -4f, -66f, col("#3a3f47"))
@@ -162,7 +158,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         }
         "bench" -> {
             oval(c, 0f, 1f, 24f, 3f, SHADOW_13, o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 rect(c, -20f, -22f, 40f, 5f, col("#a9733a"), 1.5f)
                 rect(c, -20f, -16f, 40f, 3f, col("#8a5a2a"))
                 rect(c, -21f, -12f, 42f, 5f, col("#b9823f"), 1.5f)
@@ -173,7 +169,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         "bush" -> {
             val cc = col(d.ps("color")); val c2 = col(d.ps("color2"))
             oval(c, 0f, 2f, 16f, 4f, SHADOW_13, o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 circle(c, -9f, -8f, 9f, cc)
                 circle(c, 9f, -8f, 9f, cc)
                 circle(c, 0f, -13f, 10f, cc)
@@ -184,20 +180,20 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         }
         "blanket" -> {
             val cc = col(d.ps("color")); val c2 = col(d.ps("color2"))
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 rect(c, -48f, -40f, 96f, 44f, cc, 3f)
                 for (i in 0 until 4) for (j in 0 until 3) if ((i + j) % 2 == 0)
                     rect(c, -48f + i * 24f, -40f + j * 14.7f, 24f, 14.7f, c2, o = false)
             }
         }
-        "basket" -> outlined(OL_FIG, OL_FIG_W) {
+        "basket" -> outlinedFig {
             quad(c, -9f, -9f, 9f, -9f, 7f, 0f, -7f, 0f, col("#b9792f"))
             path.rewind(); path.moveTo(-7f, -9f); q(7f, -13f, 14f, 0f)
             strokePath(c, col("#8a5a2a"), 1.4f)
             rect(c, -8f, -11f, 16f, 3f, col("#e05a5a"), 1f)
         }
         "guitarcase" -> {
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 rect(c, -14f, -7f, 28f, 9f, col("#3a3f47"), 3f)
                 rect(c, -11f, -5f, 22f, 5f, col("#7a2f3a"), 2f)
             }
@@ -209,7 +205,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         "cart" -> {
             val cc = col(d.ps("color"))
             oval(c, 0f, 3f, 34f, 5f, SHADOW_13, o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 rect(c, -1.5f, -70f, 3f, 40f, col("#8a6a45"))
                 for (i in 0 until 6) {
                     path.rewind(); path.moveTo(-34f + i * 11.3f, -66f); q(5.65f, -16f, 11.3f, 0f); path.close()
@@ -232,7 +228,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         }
         "easel" -> {
             oval(c, 0f, 2f, 14f, 3f, SHADOW_12, o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 path.rewind()
                 path.moveTo(-10f, 0f); path.lineTo(-3f, -44f)
                 path.moveTo(10f, 0f); path.lineTo(3f, -44f)
@@ -249,7 +245,7 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
         "ball" -> {
             val y = -d.pn("lift") - 5f
             oval(c, 0f, 1f, 6f, 2f, col("rgba(0,0,0,.18)"), o = false)
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 circle(c, 0f, y, 5f, WHITE)
                 path.rewind(); path.moveTo(-5f, y)
                 path.arcTo(-5f, y - 5f, 5f, y + 5f, 180f, 180f, false) // a5,5 0 0 1 10,0
@@ -263,13 +259,13 @@ internal fun Ink.prop(c: Canvas, d: Drawable, mood: String) {
             strokePath(c, col("#6b4a2b"), 1.6f, round = true)
             path.rewind(); path.moveTo(dx * 0.45f, -30f); path.lineTo(dx, dy)
             strokePath(c, col("#999999"), 0.7f)
-            outlined(OL_FIG, OL_FIG_W) { circle(c, dx, dy, 2.6f, col("#e05a5a")) }
+            outlinedFig { circle(c, dx, dy, 2.6f, col("#e05a5a")) }
         }
         "bucket" -> {
-            outlined(OL_FIG, OL_FIG_W) {
+            outlinedFig {
                 quad(c, -6f, -9f, 6f, -9f, 4.5f, 0f, -4.5f, 0f, col("#4a7fd6"))
                 path.rewind(); path.moveTo(-5f, -9f); q(5f, -7f, 10f, 0f)
-                strokePath(c, col("#777777"), OL_FIG_W) // stroke inherited width .7
+                strokePath(c, col("#777777"), figW) // stroke width inherited from the outline group
             }
             oval(c, 0f, -9f, 6f, 1.6f, col("#9fd8f0"), o = false)
         }
@@ -297,7 +293,7 @@ internal fun Ink.house(c: Canvas, hs: House, mood: String) {
     val floors = if (h > 150f) 2 else 1
     val winFill = if (mood == "evening") col("#ffe9a8") else col("#bfe6f5")
     val white = WHITE
-    outlined(OL_HOUSE, OL_HOUSE_W) {
+    outlinedHouse {
         rect(c, x, top, w, h, col(hs.wall))
         rect(c, x + w - 16f, top, 16f, h, col("rgba(0,0,0,.07)"), o = false)
         if (hs.roofType == "flat") {
@@ -315,7 +311,7 @@ internal fun Ink.house(c: Canvas, hs: House, mood: String) {
                 path.rewind()
                 path.moveTo(f1(x + w / 2f - half), ty)
                 path.lineTo(f1(x + w / 2f + half), ty)
-                strokePath(c, tile, OL_HOUSE_W)
+                strokePath(c, tile, houseW)
             }
             if (hs.chimney) {
                 rect(c, x + w * 0.68f, top - 40f, 12f, 22f, col("#9c5b45"))

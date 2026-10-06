@@ -61,6 +61,10 @@ internal class Ink {
     private val box = RectF()
     private val cache = HashMap<String, Int>(128)
 
+    private val style = PaperStyle.get()
+    val figW: Float get() = style.figEdgeWidth
+    val houseW: Float get() = style.houseEdgeWidth
+
     var outlineOn = false
     var outlineColor = 0
     var outlineWidth = 0f
@@ -81,7 +85,19 @@ internal class Ink {
         try { body() } finally { outlineOn = false }
     }
 
+    /** OL() of scene.js: outline group of figures / trees / stalls / props (style dependent). */
+    inline fun outlinedFig(body: () -> Unit) = outlined(figEdgeColor(), figW, body)
+
+    /** HOUSE_EDGE() of scene.js. */
+    inline fun outlinedHouse(body: () -> Unit) = outlined(houseEdgeColor(), houseW, body)
+
+    fun figEdgeColor(): Int = style.figEdgeColor
+    fun houseEdgeColor(): Int = style.houseEdgeColor
+
+    private var explicitEdge = false
+
     private fun edge(o: Boolean, sc: Int, sw: Float) {
+        explicitEdge = sw > 0f
         if (sw > 0f) { ec = sc; ew = sw }
         else if (o && outlineOn) { ec = outlineColor; ew = outlineWidth }
         else { ec = 0; ew = 0f }
@@ -97,9 +113,9 @@ internal class Ink {
     }
 
     private fun paint(c: Canvas, geo: Int, fill: Int, rx: Float) {
-        if ((fill ushr 24) != 0) { fillP.color = fill; shape(c, geo, rx, fillP) }
-        if (ew > 0f && (ec ushr 24) != 0) {
-            strokeP.color = ec
+        if ((fill ushr 24) != 0) { fillP.color = style.tone(fill); shape(c, geo, rx, fillP) }
+        if (ew > 0f && (ec ushr 24) != 0 && !(style.shadowMode && !explicitEdge)) {
+            strokeP.color = style.tone(ec)
             strokeP.strokeWidth = ew
             strokeP.strokeCap = Paint.Cap.BUTT
             strokeP.pathEffect = null
@@ -151,7 +167,7 @@ internal class Ink {
 
     /** Strokes the current [path] only (SVG fill="none" stroke=...). */
     fun strokePath(c: Canvas, color: Int, width: Float, round: Boolean = false, dashed: Boolean = false) {
-        strokeP.color = color
+        strokeP.color = style.tone(color)
         strokeP.strokeWidth = width
         strokeP.strokeCap = if (round) Paint.Cap.ROUND else Paint.Cap.BUTT
         strokeP.pathEffect = if (dashed) DASH else null
@@ -160,7 +176,7 @@ internal class Ink {
     }
 
     fun line(c: Canvas, x1: Float, y1: Float, x2: Float, y2: Float, color: Int, width: Float, dashed: Boolean = false) {
-        strokeP.color = color
+        strokeP.color = style.tone(color)
         strokeP.strokeWidth = width
         strokeP.strokeCap = Paint.Cap.BUTT
         strokeP.pathEffect = if (dashed) DASH else null
@@ -170,7 +186,7 @@ internal class Ink {
 
     fun text(c: Canvas, s: String, x: Float, y: Float, size: Float, color: Int) {
         textP.textSize = size
-        textP.color = color
+        textP.color = style.tone(color)
         c.drawText(s, x, y, textP)
     }
 
